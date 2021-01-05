@@ -3,24 +3,32 @@ package battlecode2021;
 import battlecode.common.*;
 import static battlecode2021.RobotPlayer.*;
 public strictfp class enlightenmentCenter {
+    public static int slandnum = 0;
     static void runEnlightenmentCenter() throws GameActionException {
-        RobotType toBuild = randomSpawnableRobotType();
         int infl = rc.getInfluence();
         System.out.println(infl);
-        if (infl <= 100) {
-            toBuild = RobotType.SLANDERER;
+        RobotType toBuild = RobotType.SLANDERER;
+        int influence = 1;
+        if (toBuild == RobotType.SLANDERER && (rc.getRoundNum()%2==0 || rc.getRoundNum() < 200)) {
+            for (Direction dir : directions) {
+                if (rc.canBuildRobot(toBuild, dir, influence)) {
+                    rc.buildRobot(toBuild, dir, influence);
+                    slandnum = slandnum + 1;
+                } else {
+                    break;
+                }
+            }
         } else {
-            toBuild = RobotType.MUCKRAKER;
-        }
-        int influence = rc.getInfluence()/3;
-        for (Direction dir : directions) {
-            if (rc.canBuildRobot(toBuild, dir, influence)) {
-                rc.buildRobot(toBuild, dir, influence);
-            } else {
-                break;
+            for (Direction dir : directions) {
+                if (rc.canBuildRobot(RobotType.MUCKRAKER, dir, influence)) {
+                    rc.buildRobot(RobotType.MUCKRAKER, dir, influence);
+                    slandnum = slandnum + 1;
+                } else {
+                    break;
+                }
             }
         }
-        rc.bid(rc.getInfluence()/2);
+        rc.bid(infl/5);
     }
 }
 

@@ -95,6 +95,16 @@ public strictfp class RobotPlayer {
         if (rc.canMove(dir)) {
             rc.move(dir);
             return true;
-        } else return false;
+        } else {
+            return false;
+        }
+    }
+    static boolean navigate(MapLocation loc) throws GameActionException{
+        Direction dir = loc.directionTo(rc.getLocation());
+        if (!(tryMove(dir))){
+            return true;
+        } else {
+            return false;
+        }
     }
 }
