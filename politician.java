@@ -1,6 +1,7 @@
-package examplefuncsplayer;
+package battlecode2021;
+
 import battlecode.common.*;
-import static examplefuncsplayer.RobotPlayer.*;
+import static battlecode2021.RobotPlayer.*;
 public strictfp class politician {
     static void runPolitician() throws GameActionException {
         Team enemy = rc.getTeam().opponent();
