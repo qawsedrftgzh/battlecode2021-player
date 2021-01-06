@@ -6,6 +6,9 @@ public strictfp class muckraker {
     public static MapLocation born = rc.getLocation();
     public static Team enemy = rc.getTeam().opponent();
     static void runMuckraker() throws GameActionException {
+        if (rc.getRoundNum() <= 50) {
+            rc.setFlag(999999);
+        }
         int actionRadius = rc.getType().actionRadiusSquared;
         for (RobotInfo robot : rc.senseNearbyRobots(actionRadius, enemy)) {
             if (robot.type.canBeExposed()) {
@@ -18,6 +21,7 @@ public strictfp class muckraker {
             }
         }
         tryMove(randomDirection());
+        flags.main();
     }
 }
 

@@ -8,6 +8,9 @@ public strictfp class enlightenmentCenter {
     public static int voteslastround=0;
     public static int votesthisround=0;
     static void runEnlightenmentCenter() throws GameActionException {
+        if (rc.getRoundNum() <= 50) {
+            rc.setFlag(999999);
+        }
         rc.getTeamVotes();
         int infl = rc.getInfluence();
         System.out.println(infl);
@@ -44,10 +47,10 @@ public strictfp class enlightenmentCenter {
 
         if (votesthisround != voteslastround) {
             bid = bid * 1.5;
-        } else if (rc.getRoundNum() % 5 == 0) {
+        } else if (rc.getRoundNum() % getRandomNumberInRange(2,8) == 0) {
             bid = bid-1;
-        } if (bid < 5) {
-            bid = getRandomNumberInRange(5,10);
+        } if (bid <= 5) {
+            bid = getRandomNumberInRange(10,20);
         }
         System.out.println("I will bid"+bid);
         if (rc.canBid((int) bid)) {
