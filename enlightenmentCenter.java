@@ -11,14 +11,14 @@ public strictfp class enlightenmentCenter {
         if (rc.getRoundNum() <= 50) {
             rc.setFlag(999999);
         }
-        rc.getTeamVotes();
+        votesthisround = rc.getTeamVotes();
         int infl = rc.getInfluence();
         System.out.println(infl);
         RobotType toBuild = RobotType.SLANDERER;
         int influence = infl/4;
         if (influence < 20 ) {
             influence = 20;
-        }if ((rc.getRoundNum() % 3 == 2 && rc.getRoundNum() < 200) || rc.getRoundNum() % 12 == 0) {
+        }if ((rc.getRoundNum() % 5 == 4 && rc.getRoundNum() < 200) || rc.getRoundNum() % 12 == 0) {
             for (Direction dir : directions) {
                 if (rc.canBuildRobot(RobotType.MUCKRAKER, dir, influence/2)) {
                     rc.buildRobot(RobotType.MUCKRAKER, dir, influence/2);
@@ -26,7 +26,7 @@ public strictfp class enlightenmentCenter {
                     break;
                 }
             }
-        } if (rc.getRoundNum() % 3 == 1) {
+        } if (rc.getRoundNum() % 5 == 3 || rc.getRoundNum() % 5 == 1) {
             for (Direction dir : directions) {
                 if (rc.canBuildRobot(RobotType.POLITICIAN, dir, influence)) {
                     rc.buildRobot(RobotType.POLITICIAN, dir, influence);
@@ -44,9 +44,9 @@ public strictfp class enlightenmentCenter {
                 }
             }
         }
-
+        System.out.println(voteslastround+"   "+votesthisround);
         if (votesthisround != voteslastround) {
-            bid = bid * 1.5;
+            bid = bid * 1.05;
         } else if (rc.getRoundNum() % getRandomNumberInRange(2,8) == 0) {
             bid = bid-1;
         } if (bid <= 5) {
