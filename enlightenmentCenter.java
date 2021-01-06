@@ -8,8 +8,26 @@ public strictfp class enlightenmentCenter {
         int infl = rc.getInfluence();
         System.out.println(infl);
         RobotType toBuild = RobotType.SLANDERER;
-        int influence = 1;
-        if (toBuild == RobotType.SLANDERER && (rc.getRoundNum()%2==0 || rc.getRoundNum() < 200)) {
+        int influence = infl/4;
+        if (influence < 40 ) {
+            influence = 40;
+        }if (rc.getRoundNum() % 7 == 0) {
+            for (Direction dir : directions) {
+                if (rc.canBuildRobot(RobotType.MUCKRAKER, dir, 10)) {
+                    rc.buildRobot(RobotType.MUCKRAKER, dir, 10);
+                } else {
+                    break;
+                }
+            }
+        } if (rc.getRoundNum() % 4 == 1) {
+            for (Direction dir : directions) {
+                if (rc.canBuildRobot(RobotType.POLITICIAN, dir, 10)) {
+                    rc.buildRobot(RobotType.POLITICIAN, dir, 10);
+                } else {
+                    break;
+                }
+            }
+        }else  {
             for (Direction dir : directions) {
                 if (rc.canBuildRobot(toBuild, dir, influence)) {
                     rc.buildRobot(toBuild, dir, influence);
@@ -18,17 +36,9 @@ public strictfp class enlightenmentCenter {
                     break;
                 }
             }
-        } else {
-            for (Direction dir : directions) {
-                if (rc.canBuildRobot(RobotType.MUCKRAKER, dir, influence)) {
-                    rc.buildRobot(RobotType.MUCKRAKER, dir, influence);
-                    slandnum = slandnum + 1;
-                } else {
-                    break;
-                }
-            }
         }
-        rc.bid(infl/5);
+        System.out.println("I will bid "+infl/5+1);
+        rc.bid(infl/5+1);
     }
 }
 
