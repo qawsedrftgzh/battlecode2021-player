@@ -16,13 +16,8 @@ public strictfp class muckraker {
                     return;
                 }
             }
-        }if (born != rc.getLocation()) {
-            if (!tryMove(born.directionTo(rc.getLocation()))){
-                tryMove(randomDirection());
-            }
-        } else {
-            tryMove(randomDirection());
         }
+        tryMove(randomDirection());
     }
 }
 

@@ -1,6 +1,8 @@
 package battlecode2021;
 import battlecode.common.*;
 
+import java.util.Random;
+
 public strictfp class RobotPlayer {
     static RobotController rc;
 
@@ -99,12 +101,40 @@ public strictfp class RobotPlayer {
             return false;
         }
     }
+    static Direction rotate(Direction dir,int grade) {
+        int pos = -1;
+        for(int i = 0; i < directions.length; i++) {
+            if(directions[i] == dir) {
+                pos = i;
+                break;
+            }
+        }
+        return directions[(pos+grade)%8];
+    }
+    static int getRandomNumberInRange(int min, int max) {
+
+        if (min >= max) {
+            throw new IllegalArgumentException("max must be greater than min");
+        }
+
+        Random r = new Random();
+        return r.nextInt((max - min) + 1) + min;
+    }
+
     static boolean navigate(MapLocation loc) throws GameActionException{
-        Direction dir = loc.directionTo(rc.getLocation());
-        if (!(tryMove(dir))){
+        MapLocation myloc = rc.getLocation();
+        if (myloc == loc) {
             return true;
         } else {
-            return false;
+            if (tryMove(myloc.directionTo(loc))) {
+                return false;
+            } else {
+                tryMove(rotate(myloc.directionTo(loc),1));
+                tryMove(rotate(myloc.directionTo(loc),2));
+                tryMove(rotate(myloc.directionTo(loc),3));
+                tryMove(rotate(myloc.directionTo(loc),4));
+                return false;
+            }
         }
     }
 }

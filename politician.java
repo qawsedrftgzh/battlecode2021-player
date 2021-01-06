@@ -9,22 +9,25 @@ public strictfp class politician {
 
         int actionRadius = rc.getType().actionRadiusSquared;
         RobotInfo[] attackable = rc.senseNearbyRobots(actionRadius, enemy);
-        RobotInfo[] centers = rc.senseNearbyRobots(actionRadius);
-        for (RobotInfo bot : centers) {
-            if (bot.type == RobotType.ENLIGHTENMENT_CENTER && bot.team != rc.getTeam()) {
-                rc.empower(actionRadius);
+        for (RobotInfo bot : attackable) {
+            if (bot.type == RobotType.ENLIGHTENMENT_CENTER) {
+                rc.empower(rc.getLocation().distanceSquaredTo(bot.location));
             }
         }
         if (attackable.length != 0 && rc.canEmpower(actionRadius)) {
             rc.empower(actionRadius);
             return;
         }
-        if (born != rc.getLocation()) {
-            if (!tryMove(born.directionTo(rc.getLocation()))){
-                tryMove(randomDirection());
+        boolean good = tryMove(randomDirection());
+        if (good == false){
+            for (Direction dir : directions) {
+                if (tryMove(dir) == true) {
+                    good = true;
+                    break;
+                }
             }
-        } else {
-            tryMove(randomDirection());
+        } if (good == false) { //there is no space anywhere; let's hold a speech
+            rc.empower(actionRadius);
         }
     }
 }
