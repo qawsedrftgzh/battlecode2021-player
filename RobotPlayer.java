@@ -5,30 +5,24 @@ import java.util.Random;
 
 public strictfp class RobotPlayer {
     static RobotController rc;
+    static final Direction[] directions = {
+            Direction.NORTH,
+            Direction.NORTHEAST,
+            Direction.EAST,
+            Direction.SOUTHEAST,
+            Direction.SOUTH,
+            Direction.SOUTHWEST,
+            Direction.WEST,
+            Direction.NORTHWEST,
+    };
 
     static final RobotType[] spawnableRobot = {
-        RobotType.POLITICIAN,
-        RobotType.SLANDERER,
-        RobotType.MUCKRAKER,
+            RobotType.POLITICIAN,
+            RobotType.SLANDERER,
+            RobotType.MUCKRAKER,
     };
-    /** wir sollten ein Flaggen system einführen, verschiedene Farben haben verschiedene Prioriäten die Farbe wird ausgewertet und je nach priorität
-     und roboter Typ und der Umgebung ausgewertet werden
-
-    **/
-
-    static final Direction[] directions = {
-        Direction.NORTH,
-        Direction.NORTHEAST,
-        Direction.EAST,
-        Direction.SOUTHEAST,
-        Direction.SOUTH,
-        Direction.SOUTHWEST,
-        Direction.WEST,
-        Direction.NORTHWEST,
-    };
-
     static int turnCount;
-
+    static MapLocation enemyloc = null;
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
@@ -73,7 +67,7 @@ public strictfp class RobotPlayer {
      * @return a random Direction
      */
     static Direction randomDirection() {
-        return directions[(int) (Math.random() * directions.length)];
+        return Util.directions[(int) (Math.random() * Util.directions.length)];
     }
 
     /**
@@ -82,7 +76,7 @@ public strictfp class RobotPlayer {
      * @return a random RobotType
      */
     static RobotType randomSpawnableRobotType() {
-        return spawnableRobot[(2)];
+        return Util.spawnableRobot[(2)];
     }
     //static Boolean ()
     /**
@@ -92,18 +86,9 @@ public strictfp class RobotPlayer {
      * @return true if a move was performed
      * @throws GameActionException
      */
-    static boolean tryMove(Direction dir) throws GameActionException {
-        System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
-        if (rc.canMove(dir)) {
-            rc.move(dir);
-            return true;
-        } else {
-            return false;
-        }
-    }
     static Direction rotate(Direction dir,int grade) {
         int pos = -1;
-        for(int i = 0; i < directions.length; i++) {
+        for(int i = 0; i < Util.directions.length; i++) {
             if(directions[i] == dir) {
                 pos = i;
                 break;
@@ -120,21 +105,54 @@ public strictfp class RobotPlayer {
         Random r = new Random();
         return r.nextInt((max - min) + 1) + min;
     }
-
-    static boolean navigate(MapLocation loc) throws GameActionException{
-        MapLocation myloc = rc.getLocation();
-        if (myloc == loc) {
+    static boolean tryMove(Direction dir) throws GameActionException {
+        System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
+        if (rc.canMove(dir)) {
+            rc.move(dir);
             return true;
         } else {
-            if (tryMove(myloc.directionTo(loc))) {
-                return false;
+            return false;
+        }
+    }
+    static boolean navigate(MapLocation loc) throws GameActionException {
+        if (loc != null) {
+            MapLocation myloc = rc.getLocation();
+            if (myloc == loc) {
+                return true;
             } else {
-                tryMove(rotate(myloc.directionTo(loc),1));
-                tryMove(rotate(myloc.directionTo(loc),2));
-                tryMove(rotate(myloc.directionTo(loc),3));
-                tryMove(rotate(myloc.directionTo(loc),4));
-                return false;
+                if (tryMove(myloc.directionTo(loc))) {
+                    return false;
+                } else {
+                    tryMove(rotate(myloc.directionTo(loc), 1));
+                    tryMove(rotate(myloc.directionTo(loc), 2));
+                    tryMove(rotate(myloc.directionTo(loc), 3));
+                    tryMove(rotate(myloc.directionTo(loc), 4));
+                    return false;
+                }
             }
+        } else {
+            return false;
+        }
+    }
+    static boolean runaway(MapLocation loc) throws GameActionException {
+        if (loc != null) {
+            MapLocation myloc = rc.getLocation();
+            if (myloc == loc) {
+                return true;
+            } else {
+                Direction dir = loc.directionTo(myloc);
+                if (tryMove(dir)) {
+                    return false;
+                } else {
+                    tryMove(rotate(dir, 1));
+                    tryMove(rotate(dir, 2));
+                    tryMove(rotate(dir, 3));
+                    tryMove(rotate(dir, 4));
+                    return false;
+                }
+            }
+        } else {
+            return false;
         }
     }
 }
