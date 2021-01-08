@@ -2,9 +2,7 @@ package battlecode2021;
 import battlecode.common.*;
 
 public strictfp class RobotPlayer {
-    static RobotController rc;
 
-    static MapLocation enemyloc = null;
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!

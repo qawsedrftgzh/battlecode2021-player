@@ -26,7 +26,7 @@ public class Navigation {
         }
     }
 
-    static Direction rotate(Direction dir,int grade) {
+    public Direction rotate(Direction dir,int grade) {
         int pos = -1;
         for(int i = 0; i < Util.directions.length; i++) {
             if(Util.directions[i] == dir) {
