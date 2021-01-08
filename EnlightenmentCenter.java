@@ -1,7 +1,7 @@
 package battlecode2021;
 import battlecode.common.*;
 
-public strictfp class EnlightenmentCenter extends Unit {
+public class EnlightenmentCenter extends Robot {
     public static int slandnum = 0;
     public static double bid = 10;
     public static int voteslastround=0;
@@ -11,48 +11,32 @@ public strictfp class EnlightenmentCenter extends Unit {
         super(r);
     }
 
-
-    // TODO fix problems
-
     public void takeTurn() throws GameActionException {
         super.takeTurn();
 
         if (rc.getRoundNum() <= 50) {
             rc.setFlag(999999);
         }
+
         votesthisround = rc.getTeamVotes();
         int infl = rc.getInfluence();
-        System.out.println(infl);
-        RobotType toBuild = RobotType.SLANDERER;
+        System.out.println("Influence: " + infl);
         int influence = infl/4;
         if (influence < 20 ) {
             influence = 20;
-        }if ((rc.getRoundNum() % 5 == 4 && rc.getRoundNum() < 200) || rc.getRoundNum() % 12 == 0) {
-            for (Direction dir : Util.directions) {
-                if (rc.canBuildRobot(RobotType.MUCKRAKER, dir, influence/2)) {
-                    rc.buildRobot(RobotType.MUCKRAKER, dir, influence/2);
-                } else {
-                    break;
-                }
-            }
-        } if (rc.getRoundNum() % 5 == 3 || rc.getRoundNum() % 5 == 1) {
-            for (Direction dir : Util.directions) {
-                if (rc.canBuildRobot(RobotType.POLITICIAN, dir, influence)) {
-                    rc.buildRobot(RobotType.POLITICIAN, dir, influence);
-                } else {
-                    break;
-                }
-            }
-        }else  {
-            for (Direction dir : Util.directions) {
-                if (rc.canBuildRobot(toBuild, dir, influence)) {
-                    rc.buildRobot(toBuild, dir, influence);
-                    slandnum = slandnum + 1;
-                } else {
-                    break;
-                }
-            }
         }
+
+        if ((rc.getRoundNum() % 5 == 4 && rc.getRoundNum() < 200) || rc.getRoundNum() % 12 == 0) {
+            tryBuild(RobotType.MUCKRAKER, null, influence/2);
+
+        } if (rc.getRoundNum() % 5 == 3 || rc.getRoundNum() % 5 == 1) {
+            tryBuild(RobotType.POLITICIAN, null, influence);
+
+        } else  {
+            tryBuild(RobotType.SLANDERER, null, influence);
+            slandnum++;
+        }
+
         System.out.println(voteslastround+"   "+votesthisround);
         if (votesthisround != voteslastround) {
             bid = bid * 1.05;
@@ -61,11 +45,31 @@ public strictfp class EnlightenmentCenter extends Unit {
         } if (bid <= 5) {
             bid = Util.getRandomNumberInRange(10,20);
         }
-        System.out.println("I will bid"+bid);
+        System.out.println("I will bid " + (int) bid);
         if (rc.canBid((int) bid)) {
             rc.bid((int) bid);
         }
         voteslastround = votesthisround;
+    }
+
+    boolean tryBuild(RobotType rt, Direction dir, int influence) throws GameActionException {
+        if (rc.isReady()) {
+            if (dir != null) {
+                if (rc.canBuildRobot(rt, dir, influence)) {
+                    rc.buildRobot(rt, dir, influence);
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                for (Direction d : Util.directions) {
+                    if (rc.canBuildRobot(rt, d, influence)) {
+                        rc.buildRobot(rt, d, influence);
+                        return true;
+                    }
+                }
+            }
+        } return false;
     }
 }
 
