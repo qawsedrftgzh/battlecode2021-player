@@ -1,10 +1,16 @@
 package battlecode2021;
-
 import battlecode.common.*;
-import static battlecode2021.RobotPlayer.*;
-public strictfp class politician {
-    public static MapLocation born = rc.getLocation();
-    static void runPolitician() throws GameActionException {
+
+public class Politician extends Unit {
+    MapLocation born = rc.getLocation();
+
+    public Politician(RobotController r) {
+        super(r);
+    }
+
+    public void takeTurn() throws GameActionException {
+        super.takeTurn();
+
         if (rc.getRoundNum() <= 50) {
             rc.setFlag(999999);
         }
@@ -21,9 +27,9 @@ public strictfp class politician {
             rc.empower(actionRadius);
             return;
         }
-        boolean good = tryMove(randomDirection());
+        boolean good = tryMove(Util.randomDirection());
         if (good == false){
-            for (Direction dir : directions) {
+            for (Direction dir : Util.directions) {
                 if (tryMove(dir) == true) {
                     good = true;
                     break;

@@ -39,10 +39,20 @@ public class Util {
      */
     static RobotType randomSpawnableRobotType() {
         return spawnableRobot[(int) (Math.random() * spawnableRobot.length)];
-
-
     }
 
-
-
+    /**
+     * Returns a random integer in given range
+     *
+     * @param min minimum value
+     * @param max maximum value
+     * @return random integer
+     */
+    static int getRandomNumberInRange(int min, int max) {
+        if (min >= max) {
+            throw new IllegalArgumentException("max must be greater than min");
+        }
+        Random r = new Random();
+        return r.nextInt((max - min) + 1) + min;
+    }
 }

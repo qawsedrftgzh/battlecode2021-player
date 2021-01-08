@@ -1,10 +1,14 @@
 package battlecode2021;
-
 import battlecode.common.*;
-import static battlecode2021.RobotPlayer.*;
-public strictfp class slanderer {
-    public static Team enemy = rc.getTeam().opponent();
-    static void runSlanderer() throws GameActionException {
+
+public class Slanderer extends Unit {
+
+    public Slanderer(RobotController r) {
+        super(r);
+    }
+    Team enemy = rc.getTeam().opponent();
+
+    public void takeTurn() throws GameActionException {
         if (rc.getRoundNum() <= 50) {
             rc.setFlag(999999);
         }
@@ -13,8 +17,9 @@ public strictfp class slanderer {
             if (bot.type == RobotType.MUCKRAKER){
                 tryMove(bot.location.directionTo(rc.getLocation()));
             }
-        }**/ tryMove(randomDirection());
+        }**/ nav.tryMove(Util.randomDirection());
         flags.main();
     }
 }
+
 

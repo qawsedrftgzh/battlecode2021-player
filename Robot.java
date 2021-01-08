@@ -3,8 +3,8 @@ import battlecode.common.*;
 
 public class Robot {
     RobotController rc;
-
     int turnCount = 0;
+
     public Robot(RobotController r) {
         this.rc = r;
     }
