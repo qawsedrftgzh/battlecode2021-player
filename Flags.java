@@ -1,12 +1,17 @@
 package battlecode2021;
-
 import battlecode.common.*;
 
-import java.util.Map;
-//laala einfach random change
-import static battlecode2021.RobotPlayer.*;
-public strictfp class flags {
-    public static void main() throws GameActionException {
+public class Flags {
+    RobotController rc;
+    Navigation nav;
+    MapLocation enemyloc = null;
+
+    public Flags(RobotController r) {
+        rc = r;
+        nav = new Navigation(rc);
+    }
+
+    public void main() throws GameActionException {
         RobotType type = rc.getType();
         MapLocation myloc = rc.getLocation();
         int emergenst1 = 0; //der erste wert beschreibt die priorität, 58342 -> 5 erster wert, 83 zweiter wert, 42 ist der dritte
