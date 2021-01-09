@@ -20,7 +20,7 @@ public class Muckraker extends Unit {
         for (RobotInfo robot : rc.senseNearbyRobots(actionRadius, enemy)) {
             if (robot.type.canBeExposed()) {
                 // It's a slanderer... go get them!
-                nav.navigate(robot.location);
+                // nav.navigate(robot.location);
                 if (rc.canExpose(robot.location)) {
                     rc.expose(robot.location);
                     return;
