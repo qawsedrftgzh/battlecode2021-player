@@ -9,9 +9,23 @@ public class Politician extends Unit {
     public Politician(RobotController r) {
         super(r);
         MapLocation born = rc.getLocation();
+
     }
 
     public void takeTurn() throws GameActionException {
+        super.takeTurn();
+        if (!attackProtocol()) {
+            if (rc.getLocation().distanceSquaredTo(ECloc) < 50) {
+                nav.scout(ECloc);
+            } else {
+                if (!idleMovement() && rc.canEmpower(actionRadius)) { //there is no space anywhere; let's hold a speech
+                    rc.empower(actionRadius);
+                }
+            }
+        }
+    }
+
+    public void takeTurn2() throws GameActionException {
         super.takeTurn();
 
         if (rc.getRoundNum() <= 50) {
@@ -19,16 +33,7 @@ public class Politician extends Unit {
         }
 
         if (!attackProtocol()) {
-            boolean good = tryMove(Util.randomDirection());
-            if (good == false) {
-                for (Direction dir : Util.directions) {
-                    if (tryMove(dir) == true) {
-                        good = true;
-                        break;
-                    }
-                }
-            }
-            if (good == false && rc.canEmpower(actionRadius)) { //there is no space anywhere; let's hold a speech
+            if (!idleMovement() && rc.canEmpower(actionRadius)) { //there is no space anywhere; let's hold a speech
                 rc.empower(actionRadius);
             }
             //flags.main();
@@ -48,6 +53,17 @@ public class Politician extends Unit {
             rc.empower(actionRadius);
             return true;
         }
+        return false;
+    }
+
+    boolean idleMovement() throws GameActionException {
+        if (!nav.tryMove(Util.randomDirection())) {
+            for (Direction dir : Util.directions) {
+                if (nav.tryMove(dir)) {
+                    return true;
+                }
+            }
+        } else { return true; }
         return false;
     }
 }
