@@ -45,7 +45,11 @@ public class Flags {
             }
         }if (!toflag){rc.setFlag(emergenstflag); } else { rc.setFlag(flagtoset);}
     }
-    public static int get1(int flag){ return (flag-flag%10000)/10000; }
-    public static int get2(int flag){ return ((flag%10000)-flag%100)/100; }
-    public static int get3(int flag){ return flag%100; }
+    public int get1(int flag){ return (flag-flag%10000)/10000; }
+    public int get2(int flag){ return ((flag%10000)-flag%100)/100; }
+    public int get3(int flag){ return flag%100; }
+
+    void evaluateFlag(int flag) {
+    }
+
 }
