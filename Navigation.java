@@ -79,4 +79,10 @@ public class Navigation {
             return false;
         }
     }
+
+    boolean scout(MapLocation escpoint) throws GameActionException {
+       MapLocation loc = rc.getLocation();
+       Direction dir = loc.directionTo(escpoint).opposite();
+       return navigate(loc.add(dir));
+    }
 }
