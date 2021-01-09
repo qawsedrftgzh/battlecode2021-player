@@ -1,6 +1,9 @@
 package battlecode2021;
 import battlecode.common.*;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 public class Flags {
     RobotController rc;
     Navigation nav;
@@ -49,7 +52,39 @@ public class Flags {
     public int get2(int flag){ return ((flag%10000)-flag%100)/100; }
     public int get3(int flag){ return flag%100; }
 
-    void evaluateFlag(int flag) {
+    int getInfoFromFlag(int flag) {
+        int info = flag / 10000;
+        return info;
     }
+
+    void sendLocation(MapLocation loc, int extraInfo) throws GameActionException {
+        MapLocation location = rc.getLocation();
+        int x = location.x, y = location.y;
+        int encodedLocation = (x % 128) * 128 + (y % 128) + extraInfo * 128 * 128;
+        if (rc.canSetFlag(encodedLocation)) {
+            rc.setFlag(encodedLocation);
+        }
+    }
+
+    // a
+    boolean sendLocation2(MapLocation loc, int info) throws GameActionException {
+        MapLocation location = rc.getLocation();
+        int x = location.x, y = location.y;
+        int encodedLocation = (x % 100) * 100 + (y % 100) + info * 10000;
+        if (rc.canSetFlag(encodedLocation)) {
+            rc.setFlag(encodedLocation);
+            return true;
+        } return false;
+    }
+
+
+    MapLocation getLocationFromFlag(int flag) {
+        int y = flag % 100;
+        int x = (flag / 100) % 100;
+        int info = flag / 10000;
+        MapLocation loc = new MapLocation(x, y);
+        return loc;
+    }
+
 
 }
