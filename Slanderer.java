@@ -18,7 +18,7 @@ public class Slanderer extends Unit {
                 tryMove(bot.location.directionTo(rc.getLocation()));
             }
         }**/ nav.tryMove(Util.randomDirection());
-        flags.main();
+        // flags.main();
     }
 }
 
