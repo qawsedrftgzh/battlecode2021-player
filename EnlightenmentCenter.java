@@ -18,6 +18,8 @@ public class EnlightenmentCenter extends Robot {
     // a 2. takeTurn() function for testing
     public void takeTurn() throws GameActionException {
         super.takeTurn();
+        updateActiveBots();
+
         if (slandnum < 100 && rc.getInfluence() >= 21 && politnum <= 100) {
             if(tryBuild(RobotType.SLANDERER, null, 21)) {
                 slandnum++;
@@ -34,12 +36,12 @@ public class EnlightenmentCenter extends Robot {
 
     public void takeTurn2() throws GameActionException {
         super.takeTurn();
+        updateActiveBots();
 
         if (rc.getRoundNum() <= 50) {
             rc.setFlag(999999);
         }
 
-        votesthisround = rc.getTeamVotes();
         int infl = rc.getInfluence();
         System.out.println("Influence: " + infl);
         int influence = infl/4;
@@ -58,6 +60,7 @@ public class EnlightenmentCenter extends Robot {
             slandnum++;
         }
 
+        votesthisround = rc.getTeamVotes();
         System.out.println(voteslastround+"   "+votesthisround);
         if (votesthisround != voteslastround) {
             bid = bid * 1.05;
@@ -95,10 +98,12 @@ public class EnlightenmentCenter extends Robot {
         } return false;
     }
 
-    void getAllFlags() throws GameActionException {
+    void updateActiveBots() throws GameActionException {
         for (RobotInfo rb : activebots) {
-            if (rc.canGetFlag(rb.ID)) {
-                rc.getFlag(rb.ID);
+            if (!rc.canGetFlag(rb.ID)) {
+                activebots.remove(rb);
+            } else if (rc.canGetFlag(rb.ID) && rb.team == rc.getTeam().opponent()) {
+                activebots.remove(rb);
             }
         }
     }
