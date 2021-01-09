@@ -37,7 +37,7 @@ public class Navigation {
         return Util.directions[(pos+grade)%8];
     }
 
-    public boolean navigate(MapLocation loc) throws GameActionException {
+    boolean navigate(MapLocation loc) throws GameActionException {
         if (loc != null) {
             MapLocation myloc = rc.getLocation();
             if (myloc == loc) {
