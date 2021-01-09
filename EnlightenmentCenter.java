@@ -1,17 +1,38 @@
 package battlecode2021;
 import battlecode.common.*;
 
+import java.util.ArrayList;
+
 public class EnlightenmentCenter extends Robot {
-    public static int slandnum = 0;
-    public static double bid = 10;
-    public static int voteslastround=0;
-    public static int votesthisround=0;
+    int politnum = 0;
+    int slandnum = 0;
+    double bid = 10;
+    int voteslastround=0;
+    int votesthisround=0;
+    ArrayList<RobotInfo> activebots = new ArrayList<RobotInfo>();
 
     public EnlightenmentCenter(RobotController r) {
         super(r);
     }
 
+    // a 2. takeTurn() function for testing
     public void takeTurn() throws GameActionException {
+        super.takeTurn();
+        if (slandnum < 100 && rc.getInfluence() >= 21 && politnum <= 100) {
+            if(tryBuild(RobotType.SLANDERER, null, 21)) {
+                slandnum++;
+            }
+        } else if (rc.getRoundNum() % 5 == 3 || rc.getRoundNum() % 5 == 1) {
+            if (tryBuild(RobotType.POLITICIAN, null, 100)) {
+                politnum++;
+            }
+        }
+        if (rc.getRoundNum() > 300) {
+            politnum++;
+        }
+    }
+
+    public void takeTurn2() throws GameActionException {
         super.takeTurn();
 
         if (rc.getRoundNum() <= 50) {
@@ -57,6 +78,7 @@ public class EnlightenmentCenter extends Robot {
             if (dir != null) {
                 if (rc.canBuildRobot(rt, dir, influence)) {
                     rc.buildRobot(rt, dir, influence);
+                    activebots.add(rc.senseRobotAtLocation(rc.getLocation().add(dir)));
                     return true;
                 } else {
                     return false;
@@ -65,11 +87,20 @@ public class EnlightenmentCenter extends Robot {
                 for (Direction d : Util.directions) {
                     if (rc.canBuildRobot(rt, d, influence)) {
                         rc.buildRobot(rt, d, influence);
+                        activebots.add(rc.senseRobotAtLocation(rc.getLocation().add(d)));
                         return true;
                     }
                 }
             }
         } return false;
+    }
+
+    void getAllFlags() throws GameActionException {
+        for (RobotInfo rb : activebots) {
+            if (rc.canGetFlag(rb.ID)) {
+                rc.getFlag(rb.ID);
+            }
+        }
     }
 }
 
