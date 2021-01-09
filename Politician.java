@@ -14,6 +14,7 @@ public class Politician extends Unit {
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
+
         if (!attackProtocol()) {
             if (rc.getLocation().distanceSquaredTo(ECloc) < 50) {
                 nav.scout(ECloc);
