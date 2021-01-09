@@ -6,10 +6,12 @@ public class Unit extends Robot {
     Navigation nav;
 
     static MapLocation enemyloc = null;
+    MapLocation ECloc;
 
     public Unit(RobotController r) {
         super(r);
         nav = new Navigation(rc);
+        ECloc = getECloc();
     }
 
     public void takeTurn() throws GameActionException {
@@ -17,20 +19,13 @@ public class Unit extends Robot {
 
     }
 
-    /**
-     * Attempts to move in a given direction.
-     *
-     * @param dir The intended direction of movement
-     * @return true if a move was performed
-     * @throws GameActionException
-     */
-    public boolean tryMove(Direction dir) throws GameActionException {
-        System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
-        if (rc.canMove(dir)) {
-            rc.move(dir);
-            return true;
-        } else {
-            return false;
+    MapLocation getECloc() {
+        RobotInfo[] neabyRobots = rc.senseNearbyRobots(2, rc.getTeam());
+        for (RobotInfo rb : neabyRobots) {
+            if (rb.type == RobotType.ENLIGHTENMENT_CENTER) {
+                return rb.location;
+            }
         }
+        return null;
     }
 }
