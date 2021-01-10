@@ -27,9 +27,6 @@ public class Politician extends Unit {
     public void takeTurn2() throws GameActionException {
         super.takeTurn();
 
-        if (rc.getRoundNum() <= 50) {
-            rc.setFlag(999999);
-        }
 
         if (!attackProtocol()) {
             if (!idleMovement() && rc.canEmpower(actionRadius)) { //there is no space anywhere; let's hold a speech
@@ -40,10 +37,10 @@ public class Politician extends Unit {
     }
 
     boolean attackProtocol() throws GameActionException {
-        RobotInfo[] attackable = rc.senseNearbyRobots(actionRadius, enemy);
+        RobotInfo[] attackable = rc.senseNearbyRobots(actionRadius);
         if (attackable.length != 0 && rc.isReady()) {
             for (RobotInfo bot : attackable) {
-                if (bot.type == RobotType.ENLIGHTENMENT_CENTER && rc.canEmpower(rc.getLocation().distanceSquaredTo(bot.location))) {
+                if (bot.type == RobotType.ENLIGHTENMENT_CENTER && rc.canEmpower(rc.getLocation().distanceSquaredTo(bot.location)) && bot.team != rc.getTeam()) {
                     rc.empower(rc.getLocation().distanceSquaredTo(bot.location));
                     return true;
                 }
@@ -51,6 +48,14 @@ public class Politician extends Unit {
         } else if (attackable.length != 0 && rc.canEmpower(actionRadius)) {
             rc.empower(actionRadius);
             return true;
+        } else {
+            RobotInfo[] allenmt = rc.senseNearbyRobots(type.detectionRadiusSquared);
+            for (RobotInfo bot : allenmt) {
+                if (bot.team != rc.getTeam() && bot.type == RobotType.ENLIGHTENMENT_CENTER) {
+                    nav.navigate(bot.location);
+                    return true;
+                }
+            }
         }
         return false;
     }

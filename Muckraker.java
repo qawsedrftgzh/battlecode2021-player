@@ -15,6 +15,7 @@ public class Muckraker extends Unit {
         if (rc.getRoundNum() <= 50) {
             rc.setFlag(999999);
         }
+
         int actionRadius = rc.getType().actionRadiusSquared;
         for (RobotInfo robot : rc.senseNearbyRobots(actionRadius, enemy)) {
             if (robot.type.canBeExposed()) {
@@ -25,6 +26,10 @@ public class Muckraker extends Unit {
                     return;
                 }
             }
+        }
+        for (RobotInfo robot : rc.senseNearbyRobots(30, enemy)) {
+            // It's a enemy... go get them!
+            nav.navigate(robot.location);
         }
         nav.tryMove(Util.randomDirection());
         flags.main();
