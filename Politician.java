@@ -2,9 +2,7 @@ package battlecode2021;
 import battlecode.common.*;
 
 public class Politician extends Unit {
-    Team enemy = rc.getTeam().opponent();
     int actionRadius = rc.getType().actionRadiusSquared;
-
 
     public Politician(RobotController r) {
         super(r);

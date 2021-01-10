@@ -4,7 +4,6 @@ import battlecode.common.*;
 public class Muckraker extends Unit {
 
     MapLocation born = rc.getLocation();
-    Team enemy = rc.getTeam().opponent();
 
     public Muckraker(RobotController r) {
         super(r);
