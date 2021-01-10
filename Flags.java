@@ -1,17 +1,12 @@
 package battlecode2021;
 import battlecode.common.*;
 
-import java.util.ArrayList;
-import java.util.Map;
-
 public class Flags {
     RobotController rc;
-    Navigation nav;
     MapLocation enemyloc = null;
 
     public Flags(RobotController r) {
         rc = r;
-        nav = new Navigation(rc);
     }
 
     public void main() throws GameActionException {
@@ -57,20 +52,10 @@ public class Flags {
         return info;
     }
 
-    void sendLocation(MapLocation loc, int extraInfo) throws GameActionException {
+    boolean sendEnemyHQLocation(MapLocation loc) throws GameActionException {
         MapLocation location = rc.getLocation();
         int x = location.x, y = location.y;
-        int encodedLocation = (x % 128) * 128 + (y % 128) + extraInfo * 128 * 128;
-        if (rc.canSetFlag(encodedLocation)) {
-            rc.setFlag(encodedLocation);
-        }
-    }
-
-    // a
-    boolean sendLocation2(MapLocation loc, int info) throws GameActionException {
-        MapLocation location = rc.getLocation();
-        int x = location.x, y = location.y;
-        int encodedLocation = (x % 100) * 100 + (y % 100) + info * 10000;
+        int encodedLocation = (x % 100) * 100 + (y % 100) + 5 * 10000;
         if (rc.canSetFlag(encodedLocation)) {
             rc.setFlag(encodedLocation);
             return true;
@@ -78,13 +63,15 @@ public class Flags {
     }
 
 
-    MapLocation getLocationFromFlag(int flag) {
+    MapLocation getLocationFromFlag(int flag) throws GameActionException {
         int y = flag % 100;
         int x = (flag / 100) % 100;
-        int info = flag / 10000;
-        MapLocation loc = new MapLocation(x, y);
-        return loc;
+
+        MapLocation myloc = rc.getLocation();
+        int offsetX = (int) (Math.floor(myloc.x / 100.0) * 100);
+        int offsetY = (int) (Math.floor(myloc.y / 100.0) * 100);
+
+        MapLocation _final = new MapLocation(x + offsetX, y + offsetY);
+        return _final;
     }
-
-
 }
