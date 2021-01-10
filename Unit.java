@@ -2,10 +2,7 @@ package battlecode2021;
 import battlecode.common.*;
 
 public class Unit extends Robot {
-
     Navigation nav;
-
-    static MapLocation enemyloc = null;
     MapLocation ECloc;
 
     public Unit(RobotController r) {
