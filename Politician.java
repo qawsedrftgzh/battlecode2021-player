@@ -2,7 +2,6 @@ package battlecode2021;
 import battlecode.common.*;
 
 public class Politician extends Unit {
-    int actionRadius = rc.getType().actionRadiusSquared;
     boolean superpol = false; //if the plotician has more then 200 influence
     public Politician(RobotController r) {
         super(r);
