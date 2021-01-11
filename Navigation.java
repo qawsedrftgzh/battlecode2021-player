@@ -47,9 +47,9 @@ public class Navigation {
                     return false;
                 } else {
                     tryMove(rotate(myloc.directionTo(loc), 1));
+                    tryMove(rotate(myloc.directionTo(loc), -1));
                     tryMove(rotate(myloc.directionTo(loc), 2));
-                    tryMove(rotate(myloc.directionTo(loc), 3));
-                    tryMove(rotate(myloc.directionTo(loc), 4));
+                    tryMove(rotate(myloc.directionTo(loc), -2));
                     return false;
                 }
             }
@@ -81,8 +81,6 @@ public class Navigation {
     }
 
     boolean scout(MapLocation escpoint) throws GameActionException {
-       MapLocation loc = rc.getLocation();
-       Direction dir = loc.directionTo(escpoint).opposite();
-       return navigate(loc.add(dir));
+       return runaway(escpoint);
     }
 }

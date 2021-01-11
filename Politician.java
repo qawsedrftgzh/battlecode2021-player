@@ -3,16 +3,17 @@ import battlecode.common.*;
 
 public class Politician extends Unit {
     int actionRadius = rc.getType().actionRadiusSquared;
-
+    boolean superpol = false; //if the plotician has more then 200 influence
     public Politician(RobotController r) {
         super(r);
         MapLocation born = rc.getLocation();
+        if (rc.getInfluence()>=200) {superpol=true;}
 
     }
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
-
+        flags.main();
         if (!attackProtocol()) {
             if (rc.getLocation().distanceSquaredTo(ECloc) < 50) {
                 nav.scout(ECloc);
@@ -37,21 +38,28 @@ public class Politician extends Unit {
     }
 
     boolean attackProtocol() throws GameActionException {
-        RobotInfo[] attackable = rc.senseNearbyRobots(actionRadius);
-        if (attackable.length != 0 && rc.isReady()) {
-            for (RobotInfo bot : attackable) {
-                if (bot.type == RobotType.ENLIGHTENMENT_CENTER && rc.canEmpower(rc.getLocation().distanceSquaredTo(bot.location)) && bot.team != rc.getTeam()) {
-                    rc.empower(rc.getLocation().distanceSquaredTo(bot.location));
-                    return true;
-                }
+        RobotInfo[] neabyRobots = rc.senseNearbyRobots(4);
+        for (RobotInfo rb : neabyRobots) {
+            if (rb.type == RobotType.ENLIGHTENMENT_CENTER && rc.canEmpower(2) && rb.team != rc.getTeam()){
+                System.out.println("Enemy EC found");
+                rc.empower(4);
+                return true;
             }
-        } else if (attackable.length != 0 && rc.canEmpower(actionRadius)) {
+        }
+        RobotInfo[] attackable = rc.senseNearbyRobots(actionRadius,rc.getTeam().opponent());
+        if (attackable.length != 0 && rc.canEmpower(actionRadius)) {
             rc.empower(actionRadius);
             return true;
         } else {
             RobotInfo[] allenmt = rc.senseNearbyRobots(type.detectionRadiusSquared);
             for (RobotInfo bot : allenmt) {
                 if (bot.team != rc.getTeam() && bot.type == RobotType.ENLIGHTENMENT_CENTER) {
+                    nav.navigate(bot.location);
+                    return true;
+                }
+            }if (enemyloc!=null){nav.navigate(enemyloc);}
+            for (RobotInfo bot : allenmt) {
+                if (bot.team != rc.getTeam()) {
                     nav.navigate(bot.location);
                     return true;
                 }
