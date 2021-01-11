@@ -20,6 +20,9 @@ public strictfp class RobotPlayer {
 
         while (true) {
             try {
+                if (me.type == RobotType.SLANDERER && me.turnCount == 300) {
+                    me = new Politician(rc);
+                }
                 me.takeTurn();
                 Clock.yield();
             } catch (Exception e) {
