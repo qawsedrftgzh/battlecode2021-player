@@ -17,7 +17,6 @@ public class Navigation {
      * @throws GameActionException
      */
    public boolean tryMove(Direction dir) throws GameActionException {
-        System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
         if (rc.canMove(dir)) {
             rc.move(dir);
             return true;
@@ -81,6 +80,7 @@ public class Navigation {
     }
 
     boolean scout(MapLocation escpoint) throws GameActionException {
+       System.out.println("Scouting");
        return runaway(escpoint);
     }
 }
