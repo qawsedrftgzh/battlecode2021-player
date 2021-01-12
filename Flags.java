@@ -9,7 +9,7 @@ public class Flags {
         rc = r;
     }
 
-    public void main() throws GameActionException {
+    public void main2() throws GameActionException {
         RobotType type = rc.getType();
         MapLocation myloc = rc.getLocation();
         int emergenst1 = 0; //der erste wert beschreibt die priorität, 58342 -> 5 erster wert, 83 zweiter wert, 42 ist der dritte
@@ -52,10 +52,10 @@ public class Flags {
         return info;
     }
 
-    boolean sendEnemyHQLocation(MapLocation loc) throws GameActionException {
+    boolean sendLocationWithInfo(MapLocation loc, int infocode) throws GameActionException {
         MapLocation location = rc.getLocation();
         int x = location.x, y = location.y;
-        int encodedLocation = (x % 100) * 100 + (y % 100) + 5 * 10000;
+        int encodedLocation = (x % 100) * 100 + (y % 100) + infocode * 10000;
         if (rc.canSetFlag(encodedLocation)) {
             rc.setFlag(encodedLocation);
             return true;
