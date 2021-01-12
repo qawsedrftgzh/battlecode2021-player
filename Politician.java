@@ -4,10 +4,11 @@ import battlecode.common.*;
 import javax.sound.sampled.Line;
 
 public class Politician extends Unit {
+    boolean free = false; //wenn ein politiker ausserhalb des verteidigungsringes ist
+    MapLocation born = rc.getLocation();
     boolean superpol = false; //if the plotician has more then 200 influence
     public Politician(RobotController r) {
         super(r);
-        MapLocation born = rc.getLocation();
         if (rc.getInfluence()>=200) {superpol=true;}
 
     }
@@ -15,10 +16,20 @@ public class Politician extends Unit {
     public void takeTurn() throws GameActionException {
         super.takeTurn();
         if (enemyECloc != null) {
+            System.out.println("I am attacking a enemy EC");
             attack(enemyECloc, 1);
-        } else if (!nav.runaway(ECloc)) {
-            if (!idleMovement() && rc.canEmpower(actionRadius)) { //there is no space anywhere; let's hold a speech
-                rc.empower(actionRadius);
+        } else {
+            if (rc.getLocation() == born){
+                if (!nav.tryMove(Util.randomDirection())) {
+                    for (Direction dir : Util.directions) {
+                        nav.tryMove(dir);
+                    }
+                }
+            }else if ((rc.senseNearbyRobots(type.detectionRadiusSquared,team).length >= 25 && rc.getLocation().distanceSquaredTo(born) >= 80)|| free){
+                nav.runaway(born);
+                free = true;
+            } else if (rc.getLocation().distanceSquaredTo(born) <= 100) {
+                nav.runaway(born);
             }
         }
         /**
