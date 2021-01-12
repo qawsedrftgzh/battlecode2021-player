@@ -60,7 +60,18 @@ public class Unit extends Robot {
                     flags.sendLocationWithInfo(enemyECloc, InfoCodes.STOPATTACK);
                     enemyECloc = null;
                 }
+            } else { enemyECloc = null; }
+        }
+        if (enemyECloc == null) {
+            if (nearbyEnemys.length != 0) {
+                for (RobotInfo b : nearbyEnemys) {
+                    if (b.type == RobotType.ENLIGHTENMENT_CENTER) {
+                        flags.sendLocationWithInfo(b.location, InfoCodes.STARTATTACK);
+                        break;
+                    }
+                }
             }
+
         }
     }
 }
