@@ -9,8 +9,8 @@ public class Robot {
     Team enemy, team;
     RobotType type;
     MapLocation enemyECloc;
-    RobotInfo[] nearbyTeam, nearbyEnemys, attackable;
-    int actionRadius;
+    RobotInfo[] nearbyTeam, nearbyEnemys, attackable, all;
+    int actionRadius, sensorRadius, detectionRadius;
 
     public Robot(RobotController r) {
         this.rc = r;
@@ -18,14 +18,17 @@ public class Robot {
         team = rc.getTeam();
         enemy = team.opponent();
         type = rc.getType();
-        actionRadius = rc.getType().actionRadiusSquared;
+        actionRadius = type.actionRadiusSquared;
+        sensorRadius = type.sensorRadiusSquared;
+        detectionRadius = type.detectionRadiusSquared;
 
     }
 
     public void takeTurn() throws GameActionException {
         turnCount += 1;
-        nearbyTeam = rc.senseNearbyRobots(type.sensorRadiusSquared, team);
-        nearbyEnemys = rc.senseNearbyRobots(type.sensorRadiusSquared, enemy);
+        nearbyTeam = rc.senseNearbyRobots(sensorRadius, team);
+        nearbyEnemys = rc.senseNearbyRobots(sensorRadius, enemy);
         attackable = rc.senseNearbyRobots(actionRadius, enemy);
+        all = rc.senseNearbyRobots(sensorRadius);
     }
 }
