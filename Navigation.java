@@ -68,9 +68,9 @@ public class Navigation {
                     return false;
                 } else {
                     tryMove(rotate(dir, 1));
+                    tryMove(rotate(dir, -1));
                     tryMove(rotate(dir, 2));
-                    tryMove(rotate(dir, 3));
-                    tryMove(rotate(dir, 4));
+                    tryMove(rotate(dir, -2));
                     return false;
                 }
             }

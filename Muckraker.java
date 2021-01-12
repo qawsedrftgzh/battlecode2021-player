@@ -2,7 +2,7 @@ package battlecode2021;
 import battlecode.common.*;
 
 public class Muckraker extends Unit {
-
+    boolean free = false; //wenn ein muckraker ausserhalb des verteidigungsringes ist
     MapLocation born = rc.getLocation();
     Team enemy = rc.getTeam().opponent();
     public Muckraker(RobotController r) {
@@ -11,7 +11,6 @@ public class Muckraker extends Unit {
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
-        boolean move = true;
         for (RobotInfo robot : rc.senseNearbyRobots(actionRadius, enemy)) {
             if (robot.type.canBeExposed()) {
                 // It's a slanderer... go get them!
@@ -22,15 +21,24 @@ public class Muckraker extends Unit {
                 }
             } break;
         }
-        if (move) {
-            for (RobotInfo robot : rc.senseNearbyRobots(30, enemy)) {
-                // It's a enemy... go get them!
-                if (robot.type.canBeExposed()) { //Dont follow muckrakers, to prevent muckracer running around theirselves
-                    nav.navigate(robot.location);
-                }
-                break;
+        for (RobotInfo robot : rc.senseNearbyRobots(30, enemy)) {
+            // It's a enemy... go get them!
+            if (robot.type.canBeExposed()) { //Dont follow muckrakers, to prevent muckracer running around theirselves
+                nav.navigate(robot.location);
             }
-            nav.tryMove(Util.randomDirection());
+            break;
+        }
+        if (rc.getLocation() == born){
+            if (!nav.tryMove(Util.randomDirection())) {
+                for (Direction dir : Util.directions) {
+                    nav.tryMove(dir);
+                }
+            }
+        }else if ((rc.senseNearbyRobots(type.detectionRadiusSquared,team).length >= 25 && rc.getLocation().distanceSquaredTo(born) >= 80)|| free){
+            nav.runaway(born);
+            free = true;
+        } else if (rc.getLocation().distanceSquaredTo(born) <= 100) {
+            nav.runaway(born);
         }
     }
     public void takeTurn2() throws GameActionException{
