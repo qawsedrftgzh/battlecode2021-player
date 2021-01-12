@@ -12,7 +12,6 @@ public class Muckraker extends Unit {
     public void takeTurn() throws GameActionException {
         super.takeTurn();
         boolean move = true;
-        int actionRadius = rc.getType().actionRadiusSquared;
         for (RobotInfo robot : rc.senseNearbyRobots(actionRadius, enemy)) {
             if (robot.type.canBeExposed()) {
                 // It's a slanderer... go get them!
@@ -22,17 +21,18 @@ public class Muckraker extends Unit {
                     break;
                 }
             } break;
-        }if (move){
-        for (RobotInfo robot : rc.senseNearbyRobots(30, enemy)) {
-            // It's a enemy... go get them!
-            if (robot.type != RobotType.MUCKRAKER) { //Dont follow muckrakers, to prevent muckracer running around theirselves
-                nav.navigate(robot.location);
-            }
-            break;
         }
-        nav.tryMove(Util.randomDirection());
-        flags.main();
-    }}
+        if (move) {
+            for (RobotInfo robot : rc.senseNearbyRobots(30, enemy)) {
+                // It's a enemy... go get them!
+                if (robot.type.canBeExposed()) { //Dont follow muckrakers, to prevent muckracer running around theirselves
+                    nav.navigate(robot.location);
+                }
+                break;
+            }
+            nav.tryMove(Util.randomDirection());
+        }
+    }
     public void takeTurn2() throws GameActionException{
         nav.navigate(new MapLocation(0,0));
     }
