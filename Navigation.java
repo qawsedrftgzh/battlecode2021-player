@@ -79,8 +79,4 @@ public class Navigation {
             return false;
         }
     }
-
-    boolean scout(MapLocation escpoint) throws GameActionException {
-       return runaway(escpoint);
-    }
 }
