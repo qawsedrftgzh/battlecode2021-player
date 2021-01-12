@@ -17,6 +17,7 @@ public class EnlightenmentCenter extends Robot {
     // a 2. takeTurn() function for testing
     public void takeTurn() throws GameActionException {
         super.takeTurn();
+        System.out.println("Hello i am a EC and it is round"+rc.getRoundNum());
         updateActiveBots();
         updateFlag();
         capital = rc.getInfluence();
@@ -27,66 +28,32 @@ public class EnlightenmentCenter extends Robot {
             }
         }
 
-        if (capital < 1000) {
+        if (rc.getRoundNum() <=2){
+            System.out.println("the first few rounds");
+            tryBuild(RobotType.SLANDERER, null, capital);
+        }else if (capital < 1000 || rc.getRoundNum() % 5 == 0) {
             tryBuild(RobotType.SLANDERER, null, 200);
-        }  else {
+        }else {
             tryBuild(RobotType.MUCKRAKER,null,10);
         }
         //bidding
-        votesthisround = rc.getTeamVotes();
-        if (votesthisround == voteslastround) {
-            bid = bid * 1.05;
-        } else if (rc.getRoundNum() % Util.getRandomNumberInRange(2,8) == 0) {
-            bid = bid*0.99;
-        } if (bid <= 5) {
-            bid = Util.getRandomNumberInRange(10,20);
+        if (rc.getRoundNum() >= 100) {
+            votesthisround = rc.getTeamVotes();
+            if (votesthisround == voteslastround && bid < capital) {
+                bid = bid * 1.01;
+            }
+            if (bid <= 5) {
+                bid = Util.getRandomNumberInRange(10, 20);
+            }
+            System.out.println("I will bid " + (int) bid);
+            if (rc.canBid((int) bid)) {
+                rc.bid((int) bid);
+            } else {
+                bid = capital/4;
+                rc.bid((int) bid);
+            }
+            voteslastround = votesthisround;
         }
-        System.out.println("I will bid " + (int) bid);
-        if (rc.canBid((int) bid)) {
-            rc.bid((int) bid);
-        }
-        voteslastround = votesthisround;
-    }
-
-    public void takeTurn2() throws GameActionException {
-        super.takeTurn();
-        updateActiveBots();
-
-        if (rc.getRoundNum() <= 50) {
-            rc.setFlag(999999);
-        }
-
-        int infl = rc.getInfluence();
-        System.out.println("Influence: " + infl);
-        int influence = infl/4;
-        if (influence < 20 ) {
-            influence = 20;
-        }
-
-        if ((rc.getRoundNum() % 5 == 4 && rc.getRoundNum() < 200) || rc.getRoundNum() % 12 == 0) {
-            tryBuild(RobotType.MUCKRAKER, null, influence/2);
-
-        } if (rc.getRoundNum() % 5 == 3 || rc.getRoundNum() % 5 == 1) {
-            tryBuild(RobotType.POLITICIAN, null, influence);
-
-        } else  {
-            tryBuild(RobotType.SLANDERER, null, influence);
-        }
-
-        votesthisround = rc.getTeamVotes();
-        System.out.println(voteslastround+"   "+votesthisround);
-        if (votesthisround == voteslastround) {
-            bid = bid * 1.05;
-        } else if (rc.getRoundNum() % Util.getRandomNumberInRange(2,8) == 0) {
-            bid = bid-1;
-        } if (bid <= 5) {
-            bid = Util.getRandomNumberInRange(10,20);
-        }
-        System.out.println("I will bid " + (int) bid);
-        if (rc.canBid((int) bid)) {
-            rc.bid((int) bid);
-        }
-        voteslastround = votesthisround;
     }
 
     boolean tryBuild(RobotType rt, Direction dir, int influence) throws GameActionException {
