@@ -27,13 +27,25 @@ public class EnlightenmentCenter extends Robot {
             }
         }
 
-        if (capital >= 200 && capital < 1000) {
+        if (capital < 1000) {
             tryBuild(RobotType.SLANDERER, null, 200);
-        } /**else if (rc.getRoundNum() % 5 == 3 || rc.getRoundNum() % 5 == 1) {
-            if (tryBuild(RobotType.POLITICIAN, null, 100)) {
-                politnum++;
-            }
-        } **/
+        }  else {
+            tryBuild(RobotType.MUCKRAKER,null,10);
+        }
+        //bidding
+        votesthisround = rc.getTeamVotes();
+        if (votesthisround == voteslastround) {
+            bid = bid * 1.05;
+        } else if (rc.getRoundNum() % Util.getRandomNumberInRange(2,8) == 0) {
+            bid = bid*0.99;
+        } if (bid <= 5) {
+            bid = Util.getRandomNumberInRange(10,20);
+        }
+        System.out.println("I will bid " + (int) bid);
+        if (rc.canBid((int) bid)) {
+            rc.bid((int) bid);
+        }
+        voteslastround = votesthisround;
     }
 
     public void takeTurn2() throws GameActionException {
@@ -101,9 +113,9 @@ public class EnlightenmentCenter extends Robot {
 
     void updateActiveBots() throws GameActionException {
         for (RobotInfo rb : activebots) {
-            if (!rc.canGetFlag(rb.ID)) {
+            if (rc.canSenseRobot(rb.ID)) {
                 activebots.remove(rb);
-            } else if (rc.canGetFlag(rb.ID) && rb.team == rc.getTeam().opponent()) {
+            } else if (rb.team == rc.getTeam().opponent()) {
                 activebots.remove(rb);
             }
         }
