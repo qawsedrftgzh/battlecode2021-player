@@ -11,6 +11,7 @@ public class Robot {
     MapLocation enemyECloc;
     RobotInfo[] nearbyTeam, nearbyEnemys, attackable, all;
     int actionRadius, sensorRadius, detectionRadius;
+    int round;
 
     public Robot(RobotController r) {
         this.rc = r;
@@ -26,6 +27,7 @@ public class Robot {
 
     public void takeTurn() throws GameActionException {
         turnCount += 1;
+        round = rc.getRoundNum();
         nearbyTeam = rc.senseNearbyRobots(sensorRadius, team);
         nearbyEnemys = rc.senseNearbyRobots(sensorRadius, enemy);
         attackable = rc.senseNearbyRobots(actionRadius, enemy);
