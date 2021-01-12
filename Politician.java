@@ -20,6 +20,7 @@ public class Politician extends Unit {
             attack(enemyECloc, 1);
         } else {
             if (rc.getLocation() == born){
+                System.out.println("this shouldnt happen so often");
                 if (!nav.tryMove(Util.randomDirection())) {
                     for (Direction dir : Util.directions) {
                         nav.tryMove(dir);
