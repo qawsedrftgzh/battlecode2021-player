@@ -78,9 +78,4 @@ public class Navigation {
             return false;
         }
     }
-
-    boolean scout(MapLocation escpoint) throws GameActionException {
-       System.out.println("Scouting");
-       return runaway(escpoint);
-    }
 }
