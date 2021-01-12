@@ -4,11 +4,10 @@ import battlecode.common.*;
 import java.util.ArrayList;
 
 public class EnlightenmentCenter extends Robot {
-    int politnum = 0;
-    int slandnum = 0;
     double bid = 10;
     int voteslastround=0;
     int votesthisround=0;
+    int capital; // current amount of influence
     ArrayList<RobotInfo> activebots = new ArrayList<RobotInfo>();
 
     public EnlightenmentCenter(RobotController r) {
@@ -19,19 +18,22 @@ public class EnlightenmentCenter extends Robot {
     public void takeTurn() throws GameActionException {
         super.takeTurn();
         updateActiveBots();
+        updateFlag();
+        capital = rc.getInfluence();
 
-        if (slandnum < 100 && rc.getInfluence() >= 21 && politnum <= 100) {
-            if(tryBuild(RobotType.SLANDERER, null, 21)) {
-                slandnum++;
+        if (enemyECloc != null) {
+            for (Direction dir : Util.directions) {
+                tryBuild(RobotType.POLITICIAN, dir, (int) (capital * 0.05));
             }
-        } else if (rc.getRoundNum() % 5 == 3 || rc.getRoundNum() % 5 == 1) {
+        }
+
+        if (capital >= 200 && capital < 1000) {
+            tryBuild(RobotType.SLANDERER, null, 200);
+        } /**else if (rc.getRoundNum() % 5 == 3 || rc.getRoundNum() % 5 == 1) {
             if (tryBuild(RobotType.POLITICIAN, null, 100)) {
                 politnum++;
             }
-        }
-        if (rc.getRoundNum() > 300) {
-            politnum++;
-        }
+        } **/
     }
 
     public void takeTurn2() throws GameActionException {
@@ -57,12 +59,11 @@ public class EnlightenmentCenter extends Robot {
 
         } else  {
             tryBuild(RobotType.SLANDERER, null, influence);
-            slandnum++;
         }
 
         votesthisround = rc.getTeamVotes();
         System.out.println(voteslastround+"   "+votesthisround);
-        if (votesthisround != voteslastround) {
+        if (votesthisround == voteslastround) {
             bid = bid * 1.05;
         } else if (rc.getRoundNum() % Util.getRandomNumberInRange(2,8) == 0) {
             bid = bid-1;
@@ -104,6 +105,29 @@ public class EnlightenmentCenter extends Robot {
                 activebots.remove(rb);
             } else if (rc.canGetFlag(rb.ID) && rb.team == rc.getTeam().opponent()) {
                 activebots.remove(rb);
+            }
+        }
+    }
+
+    void updateFlag() throws GameActionException {
+        for (RobotInfo b : activebots) {
+            if (rc.canGetFlag(b.ID)) {
+                int flag = rc.getFlag(b.ID);
+                if (flag != 0) {
+                    int info = flags.getInfoFromFlag(flag);
+                    switch (info) {
+                        case(InfoCodes.STARTATTACK):
+                            if (rc.getFlag(rc.getID()) == 0) {
+                                enemyECloc = flags.getLocationFromFlag(flag);
+                                flags.sendLocationWithInfo(enemyECloc, InfoCodes.STARTATTACK);
+                            }
+                        case(InfoCodes.STOPATTACK):
+                            if (flags.getLocationFromFlag(flag) == enemyECloc) {
+                                flags.sendLocationWithInfo(enemyECloc, InfoCodes.STOPATTACK);
+                                enemyECloc = null;
+                            }
+                    }
+                }
             }
         }
     }
