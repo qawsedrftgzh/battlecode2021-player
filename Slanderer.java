@@ -8,6 +8,8 @@ public class Slanderer extends Unit {
     }
 
     public void takeTurn() throws GameActionException {
+        super.takeTurn();
+        System.out.println("Hello i am a slanderer");
         RobotInfo[] bots = rc.senseNearbyRobots(RobotType.SLANDERER.detectionRadiusSquared, enemy);
         for (RobotInfo bot : bots) {
             if (bot.type == RobotType.MUCKRAKER) {
@@ -15,7 +17,14 @@ public class Slanderer extends Unit {
 
             }
         }
-        if(round<=50){if(nav.runaway(born)){nav.tryMove(Util.randomDirection());}}
+        System.out.println(turnCount);
+        if (turnCount<=10){
+            nav.scout();
+        }else if(turnCount<=300) {
+            nav.runaway(born);
+        }else {
+            nav.navigate(born);
+        }
     }
 }
 
