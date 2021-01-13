@@ -1,40 +1,34 @@
 package battlecode2021;
 import battlecode.common.*;
-
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class EnlightenmentCenter extends Robot {
     double bid = 10;
-    int voteslastround=0;
-    int votesthisround=0;
+    int voteslastround=0, votesthisround = 0;
     int capital; // current amount of influence
-    ArrayList<RobotInfo> activebots = new ArrayList<RobotInfo>();
+    int capital2; // capital of previous round
+    int income; // income per round (is determined by subtracting capital from capital2
+    ArrayList<RobotInfo> activebots = new ArrayList<>();
 
     public EnlightenmentCenter(RobotController r) {
         super(r);
     }
 
-    // a 2. takeTurn() function for testing
-    public void takeTurn2() throws GameActionException {
+    public void takeTurn() throws GameActionException {
+        if (round > 1000) {rc.resign();}
         super.takeTurn();
-        if (rc.getRoundNum()>=1000){rc.resign();}
+        capital = rc.getInfluence();
+        income = capital - capital2;
+        System.out.println("\nincome: " + income + "\ncooldown: " + rc.getCooldownTurns());
         updateActiveBots();
         updateFlag();
-        capital = rc.getInfluence();
 
-        if (enemyECloc != null) {
-            for (Direction dir : Util.directions) {
-                tryBuild(RobotType.POLITICIAN, dir, (int) (capital * 0.05));
-            }
-        }
+        if (income < 100 && round % 10 == 0) {
+            tryBuild(RobotType.SLANDERER, null, (int) (capital * 0.25));
 
-        if (rc.getRoundNum() <=2){
-            System.out.println("the first few rounds");
-            tryBuild(RobotType.SLANDERER, null, capital);
-        }else if (capital < 1000 || rc.getRoundNum() % 5 == 0) {
-            tryBuild(RobotType.SLANDERER, null, 200);
-        }else {
-            tryBuild(RobotType.MUCKRAKER,null,10);
+        } else {
+            tryBuild(RobotType.MUCKRAKER,null,(int) (capital * 0.01));
         }
         //bidding
         if (rc.getRoundNum() >= 100) {
@@ -42,8 +36,8 @@ public class EnlightenmentCenter extends Robot {
             if (votesthisround == voteslastround && bid < capital) {
                 bid = bid * 1.01;
             }
-            if (bid <= 5) {
-                bid = Util.getRandomNumberInRange(10, 20);
+            if (votesthisround > voteslastround && bid > 1) {
+                bid = bid / 1.01;
             }
             System.out.println("I will bid " + (int) bid);
             if (rc.canBid((int) bid)) {
@@ -54,10 +48,9 @@ public class EnlightenmentCenter extends Robot {
             }
             voteslastround = votesthisround;
         }
+        capital2 = capital;
     }
-    public void takeTurn() throws GameActionException{
-        if(rc.getRoundNum()%20==0){tryBuild(RobotType.SLANDERER,null,rc.getInfluence());}
-    }
+
     boolean tryBuild(RobotType rt, Direction dir, int influence) throws GameActionException {
         if (rc.isReady()) {
             if (dir != null) {
@@ -80,12 +73,15 @@ public class EnlightenmentCenter extends Robot {
         } return false;
     }
 
-    void updateActiveBots() throws GameActionException {
-        for (RobotInfo rb : activebots) {
-            if (rc.canSenseRobot(rb.ID)) {
-                activebots.remove(rb);
-            } else if (rb.team == rc.getTeam().opponent()) {
-                activebots.remove(rb);
+    void updateActiveBots() {
+        if (activebots.size() != 0) {
+            for (Iterator<RobotInfo> iter = activebots.iterator(); iter.hasNext();) {
+                RobotInfo info = iter.next();
+                if (!rc.canSenseRobot(info.ID)) {
+                    iter.remove();
+                } else if (info.team == enemy) {
+                    iter.remove();
+                }
             }
         }
     }
