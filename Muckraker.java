@@ -1,6 +1,8 @@
 package battlecode2021;
 import battlecode.common.*;
 
+import java.util.Random;
+
 public class Muckraker extends Unit {
     boolean free = false; //wenn ein muckraker ausserhalb des verteidigungsringes ist
     MapLocation born = rc.getLocation();
@@ -11,7 +13,7 @@ public class Muckraker extends Unit {
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
-        for (RobotInfo robot : rc.senseNearbyRobots(actionRadius, enemy)) {
+        for (RobotInfo robot : attackable) {
             if (robot.type.canBeExposed()) {
                 // It's a slanderer... go get them!
                 // nav.navigate(robot.location);
@@ -21,6 +23,13 @@ public class Muckraker extends Unit {
                 }
             } break;
         }
+        if (enemyECloc != null) {
+            nav.navigate(enemyECloc);
+        } else {
+            nav.scout();
+        }
+
+        /**
         for (RobotInfo robot : rc.senseNearbyRobots(30, enemy)) {
             // It's a enemy... go get them!
             if (robot.type.canBeExposed()) { //Dont follow muckrakers, to prevent muckracer running around theirselves
@@ -28,6 +37,7 @@ public class Muckraker extends Unit {
             }
             break;
         }
+
         int mupol = 0; //muckracer and politicians in a radius of 10
         for (RobotInfo bot : rc.senseNearbyRobots(10,team)){
             if (bot.type == RobotType.MUCKRAKER || bot.type == RobotType.POLITICIAN){
@@ -45,7 +55,7 @@ public class Muckraker extends Unit {
             free = true;
         } else if (rc.getLocation().distanceSquaredTo(born) <= 100) {
             nav.runaway(born);
-        }
+        }**/
     }
     public void takeTurn2() throws GameActionException{
         nav.navigate(new MapLocation(0,0));
