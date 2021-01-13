@@ -53,10 +53,10 @@ public class Flags {
     }
 
     boolean sendLocationWithInfo(MapLocation loc, int infocode) throws GameActionException {
-        MapLocation location = rc.getLocation();
-        int x = location.x, y = location.y;
+        int x = loc.x, y = loc.y;
         int encodedLocation = (x % 100) * 100 + (y % 100) + infocode * 10000;
         if (rc.canSetFlag(encodedLocation)) {
+            System.out.println("setting flag to " + encodedLocation);
             rc.setFlag(encodedLocation);
             return true;
         } return false;
