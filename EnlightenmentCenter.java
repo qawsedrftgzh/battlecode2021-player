@@ -15,9 +15,9 @@ public class EnlightenmentCenter extends Robot {
     }
 
     // a 2. takeTurn() function for testing
-    public void takeTurn() throws GameActionException {
+    public void takeTurn2() throws GameActionException {
         super.takeTurn();
-        System.out.println("Hello i am a EC and it is round"+rc.getRoundNum());
+        if (rc.getRoundNum()>=1000){rc.resign();}
         updateActiveBots();
         updateFlag();
         capital = rc.getInfluence();
@@ -55,7 +55,9 @@ public class EnlightenmentCenter extends Robot {
             voteslastround = votesthisround;
         }
     }
-
+    public void takeTurn() throws GameActionException{
+        if(rc.getRoundNum()%20==0){tryBuild(RobotType.SLANDERER,null,rc.getInfluence());}
+    }
     boolean tryBuild(RobotType rt, Direction dir, int influence) throws GameActionException {
         if (rc.isReady()) {
             if (dir != null) {

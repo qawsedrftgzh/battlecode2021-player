@@ -28,14 +28,18 @@ public class Navigation {
     }
 
     public Direction rotate(Direction dir,int grade) {
-        int pos = -1;
-        for(int i = 0; i < Util.directions.length; i++) {
-            if(Util.directions[i] == dir) {
-                pos = i;
-                break;
+        if (grade==0){return dir;}
+        else{
+            if (grade>0){
+                for (int i = 0;i<grade;i++) {
+                    dir.rotateRight();
+                }
+            } else {
+                for (int i = 0;i<grade;i++) {
+                    dir.rotateLeft();
+                }
             }
-        }
-        return Util.directions[(pos+grade)%8];
+        }return dir;
     }
 
     boolean navigate(MapLocation loc) throws GameActionException {
@@ -69,10 +73,11 @@ public class Navigation {
                 if (tryMove(dir)) {
                     return false;
                 } else {
-                    tryMove(rotate(dir, 1));
-                    tryMove(rotate(dir, -1));
-                    tryMove(rotate(dir, 2));
-                    tryMove(rotate(dir, -2));
+                    if(!tryMove(rotate(dir, 1))){
+                    if(!tryMove(rotate(dir, -1))){
+                    if(!tryMove(rotate(dir, 2))){
+                    if(!tryMove(rotate(dir, -2))){
+                    }}}}
                     return false;
                 }
             }

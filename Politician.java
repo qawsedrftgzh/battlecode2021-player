@@ -12,13 +12,24 @@ public class Politician extends Unit {
         if (rc.getInfluence()>=200) {superpol=true;}
 
     }
-
-    public void takeTurn() throws GameActionException {
+    public void takeTurn() throws  GameActionException{
+        if (rc.getLocation()==born) {
+            rc.empower(1);
+        }else{nav.navigate(born);}
+    }
+    public void takeTurn2() throws GameActionException {
         super.takeTurn();
         if (enemyECloc != null) {
             System.out.println("I am attacking a enemy EC");
             attack(enemyECloc, 1);
         } else {
+            int mupol = 0; //muckracer and politicians in a radius of 10
+            for (RobotInfo bot : rc.senseNearbyRobots(10,team)){
+                if (bot.type == RobotType.MUCKRAKER || bot.type == RobotType.POLITICIAN){
+                    mupol++;
+                }
+            }
+            System.out.println("noncreative debug message");
             if (rc.getLocation() == born){
                 System.out.println("this shouldnt happen so often");
                 if (!nav.tryMove(Util.randomDirection())) {
@@ -26,7 +37,7 @@ public class Politician extends Unit {
                         nav.tryMove(dir);
                     }
                 }
-            }else if ((rc.senseNearbyRobots(type.detectionRadiusSquared,team).length >= 25 && rc.getLocation().distanceSquaredTo(born) >= 80)|| free){
+            }else if ((mupol >= 5 && rc.getLocation().distanceSquaredTo(born) >= 80)|| free){
                 nav.runaway(born);
                 free = true;
             } else if (rc.getLocation().distanceSquaredTo(born) <= 100) {

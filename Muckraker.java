@@ -28,13 +28,19 @@ public class Muckraker extends Unit {
             }
             break;
         }
+        int mupol = 0; //muckracer and politicians in a radius of 10
+        for (RobotInfo bot : rc.senseNearbyRobots(10,team)){
+            if (bot.type == RobotType.MUCKRAKER || bot.type == RobotType.POLITICIAN){
+                mupol++;
+            }
+        }
         if (rc.getLocation() == born){
             if (!nav.tryMove(Util.randomDirection())) {
                 for (Direction dir : Util.directions) {
                     nav.tryMove(dir);
                 }
             }
-        }else if ((rc.senseNearbyRobots(type.detectionRadiusSquared,team).length >= 25 && rc.getLocation().distanceSquaredTo(born) >= 80)|| free){
+        }else if ((mupol >= 5 && rc.getLocation().distanceSquaredTo(born) >= 80)|| free){
             nav.runaway(born);
             free = true;
         } else if (rc.getLocation().distanceSquaredTo(born) <= 100) {
