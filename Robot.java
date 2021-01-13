@@ -9,6 +9,7 @@ public class Robot {
     Team enemy, team;
     RobotType type;
     MapLocation enemyECloc;
+    MapLocation bornhere;
     RobotInfo[] nearbyTeam, nearbyEnemys, attackable, all;
     int actionRadius, sensorRadius, detectionRadius;
     int round;
@@ -19,6 +20,9 @@ public class Robot {
         team = rc.getTeam();
         enemy = team.opponent();
         type = rc.getType();
+        if (!(type == RobotType.ENLIGHTENMENT_CENTER)){
+            bornhere = rc.getLocation();
+        }
         actionRadius = type.actionRadiusSquared;
         sensorRadius = type.sensorRadiusSquared;
         detectionRadius = type.detectionRadiusSquared;

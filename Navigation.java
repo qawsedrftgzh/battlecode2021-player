@@ -26,40 +26,30 @@ public class Navigation {
             return false;
         }
     }
-
     public Direction rotate(Direction dir,int grade) {
-        if (grade==0){return dir;}
-        else{
-            if (grade>0){
-                for (int i = 0;i<grade;i++) {
-                    dir.rotateRight();
-                }
-            } else {
-                for (int i = 0;i<grade;i++) {
-                    dir.rotateLeft();
-                }
+        int pos = -1;
+        for(int i = 0; i < Util.directions.length; i++) {
+            if(Util.directions[i] == dir) {
+                pos = i;
+                break;
             }
-        }return dir;
+        }
+        return Util.directions[(pos+grade)%8];
     }
-
-    boolean navigate(MapLocation loc) throws GameActionException {
-        if (loc != null) {
-            MapLocation myloc = rc.getLocation();
-            if (myloc == loc) {
-                return true;
-            } else {
-                if (tryMove(myloc.directionTo(loc))) {
-                    return false;
-                } else {
-                    tryMove(rotate(myloc.directionTo(loc), 1));
-                    tryMove(rotate(myloc.directionTo(loc), -1));
-                    tryMove(rotate(myloc.directionTo(loc), 2));
-                    tryMove(rotate(myloc.directionTo(loc), -2));
-                    return false;
-                }
-            }
+    boolean navigate(MapLocation loc) throws GameActionException{
+        MapLocation myloc = rc.getLocation();
+        if (myloc == loc) {
+            return true;
         } else {
-            return false;
+            if (tryMove(myloc.directionTo(loc))) {
+                return false;
+            } else {
+                tryMove(rotate(myloc.directionTo(loc),1));
+                tryMove(rotate(myloc.directionTo(loc),7));
+                tryMove(rotate(myloc.directionTo(loc),2));
+                tryMove(rotate(myloc.directionTo(loc),6));
+                return false;
+            }
         }
     }
 
@@ -74,10 +64,11 @@ public class Navigation {
                     return false;
                 } else {
                     if(!tryMove(rotate(dir, 1))){
-                    if(!tryMove(rotate(dir, -1))){
+                    if(!tryMove(rotate(dir, 7))){
                     if(!tryMove(rotate(dir, 2))){
-                    if(!tryMove(rotate(dir, -2))){
+                    if(!tryMove(rotate(dir, 6))){
                     }}}}
+                    scout();
                     return false;
                 }
             }

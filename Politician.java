@@ -5,7 +5,6 @@ import javax.sound.sampled.Line;
 
 public class Politician extends Unit {
     boolean free = false; //wenn ein politiker ausserhalb des verteidigungsringes ist
-    MapLocation born = rc.getLocation();
     boolean superpol = false; //if the plotician has more then 200 influence
     public Politician(RobotController r) {
         super(r);
@@ -13,9 +12,11 @@ public class Politician extends Unit {
 
     }
     public void takeTurn() throws  GameActionException{
-        if (rc.getLocation()==born) {
-            rc.empower(1);
-        }else{nav.navigate(born);}
+        if (rc.getLocation() == bornhere) {
+            System.out.println("this shouldnt happen so often");
+        }
+        attack(bornhere,2);
+        System.out.println(bornhere);
     }
     public void takeTurn2() throws GameActionException {
         super.takeTurn();
@@ -30,18 +31,18 @@ public class Politician extends Unit {
                 }
             }
             System.out.println("noncreative debug message");
-            if (rc.getLocation() == born){
+            if (rc.getLocation() == bornhere){
                 System.out.println("this shouldnt happen so often");
                 if (!nav.tryMove(Util.randomDirection())) {
                     for (Direction dir : Util.directions) {
                         nav.tryMove(dir);
                     }
                 }
-            }else if ((mupol >= 5 && rc.getLocation().distanceSquaredTo(born) >= 80)|| free){
-                nav.runaway(born);
+            }else if ((mupol >= 5 && rc.getLocation().distanceSquaredTo(bornhere) >= 80)|| free){
+                nav.runaway(bornhere);
                 free = true;
-            } else if (rc.getLocation().distanceSquaredTo(born) <= 100) {
-                nav.runaway(born);
+            } else if (rc.getLocation().distanceSquaredTo(bornhere) <= 100) {
+                nav.runaway(bornhere);
             }
         }
         /**
@@ -89,7 +90,7 @@ public class Politician extends Unit {
     }
 
     void attack(MapLocation target, int maxDistanceSquared) throws GameActionException {
-        int distanceToTarget = myloc.distanceSquaredTo(target);
+        int distanceToTarget = rc.getLocation().distanceSquaredTo(target);
         if (distanceToTarget <= maxDistanceSquared) {
             if (rc.isReady() && rc.canEmpower(distanceToTarget)) {
                 rc.empower(distanceToTarget);

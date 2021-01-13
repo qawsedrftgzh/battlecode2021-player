@@ -20,8 +20,10 @@ public strictfp class RobotPlayer {
 
         while (true) {
             try {
-                if (me.type == RobotType.SLANDERER && me.turnCount == 300) {
+                if (me.type == RobotType.SLANDERER && me.turnCount > 300) {
+                    MapLocation cachebron = me.bornhere;
                     me = new Politician(rc);
+                    me.bornhere = cachebron;
                 }
                 me.takeTurn();
                 Clock.yield();
