@@ -66,6 +66,9 @@ public class Unit extends Robot {
             if (nearbyEnemys.length != 0) {
                 for (RobotInfo b : nearbyEnemys) {
                     if (b.type == RobotType.ENLIGHTENMENT_CENTER) {
+                        if (!(nearbyTeam.length == 0)) {
+                            enemyECloc = b.location;
+                        }
                         flags.sendLocationWithInfo(b.location, InfoCodes.STARTATTACK);
                         break;
                     }
