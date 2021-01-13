@@ -4,9 +4,11 @@ import battlecode.common.*;
 
 public class Navigation {
     RobotController rc;
+    Direction scoutDir;
 
     public Navigation(RobotController r) {
         rc = r;
+        scoutDir = Util.randomDirection();
     }
 
     /**
@@ -77,5 +79,17 @@ public class Navigation {
         } else {
             return false;
         }
+    }
+
+    void scout() throws GameActionException {
+       if (rc.isReady()) {
+           if (rc.canMove(scoutDir)) {
+               rc.move(scoutDir);
+               System.out.println("scouted towards " + scoutDir);
+           } else {
+               scoutDir = Util.randomDirection();
+               System.out.println("changed scouting direction to " + scoutDir);
+           }
+       }
     }
 }
