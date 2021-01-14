@@ -48,13 +48,13 @@ public class Flags {
     public int get3(int flag){ return flag%100; }
 
     int getInfoFromFlag(int flag) {
-        int info = flag / 10000;
+        int info = flag / 1000 / 1000;
         return info;
     }
 
     boolean sendLocationWithInfo(MapLocation loc, int infocode) throws GameActionException {
         int x = loc.x, y = loc.y;
-        int encodedLocation = (x % 100) * 100 + (y % 100) + infocode * 10000;
+        int encodedLocation = (x % 1000) * 1000 + (y % 1000) + infocode * 1000 * 1000;
         if (rc.canSetFlag(encodedLocation)) {
             System.out.println("setting flag to " + encodedLocation);
             rc.setFlag(encodedLocation);
@@ -64,12 +64,12 @@ public class Flags {
 
 
     MapLocation getLocationFromFlag(int flag) throws GameActionException {
-        int y = flag % 100;
-        int x = (flag / 100) % 100;
+        int y = flag % 1000;
+        int x = (flag / 1000) % 1000;
 
         MapLocation myloc = rc.getLocation();
-        int offsetX = (int) (Math.floor(myloc.x / 100.0) * 100);
-        int offsetY = (int) (Math.floor(myloc.y / 100.0) * 100);
+        int offsetX = (int) (Math.floor(myloc.x / 1000.0) * 1000);
+        int offsetY = (int) (Math.floor(myloc.y / 1000.0) * 1000);
 
         MapLocation _final = new MapLocation(x + offsetX, y + offsetY);
         return _final;
