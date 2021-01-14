@@ -23,11 +23,19 @@ public class Muckraker extends Unit {
                 }
             } break;
         }
-        if (enemyECloc != null) {
-            nav.navigate(enemyECloc);
-        } else {
-            nav.scout();
+
+        if (move) {
+            if (enemyECloc != null && round > 500) {
+                if(!nav.navigate2(enemyECloc) && myloc.distanceSquaredTo(enemyECloc) < 3) {
+                    move = false;
+                }
+            } else {
+                nav.scout();
+            }
+        } else if (enemyECloc == null) {
+            move = true;
         }
+
 
         /**
         for (RobotInfo robot : rc.senseNearbyRobots(30, enemy)) {
