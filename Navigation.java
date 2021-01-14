@@ -5,7 +5,7 @@ import battlecode.common.*;
 public class Navigation {
     RobotController rc;
     Direction scoutDir;
-    double passabilityLimit = 0.2;
+    double passabilityLimit = 0.0;
 
     public Navigation(RobotController r) {
         rc = r;
