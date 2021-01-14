@@ -1,59 +1,59 @@
 package battlecode2021;
 import battlecode.common.*;
+
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class EnlightenmentCenter extends Robot {
     double bid = 10;
-    int voteslastround=0, votesthisround = 0;
+    int voteslastround=0;
+    int votesthisround=0;
     int capital; // current amount of influence
-    int capital2; // capital of previous round
-    int income; // income per round (is determined by subtracting capital from capital2
-    ArrayList<RobotInfo> activebots = new ArrayList<>();
+    ArrayList<RobotInfo> activebots = new ArrayList<RobotInfo>();
 
     public EnlightenmentCenter(RobotController r) {
         super(r);
     }
 
+    // a 2. takeTurn() function for testing
     public void takeTurn() throws GameActionException {
-        if (round > 1000) {rc.resign();} // TODO <- remove!!!
         super.takeTurn();
-        capital = rc.getInfluence();
-        income = capital - capital2;
-        System.out.println("\nincome: " + income + "\ncooldown: " + rc.getCooldownTurns());
         updateActiveBots();
         updateFlag();
+        capital = rc.getInfluence();
 
-        if (rc.senseNearbyRobots(3, enemy).length >= 4) {
-            tryBuild(RobotType.POLITICIAN, null, capital);
-        }
-        if (income < 50 && round % 10 == 0) {
-            tryBuild(RobotType.SLANDERER, null, (int) (capital * 0.25));
-
-        } else {
-            tryBuild(RobotType.MUCKRAKER,null,(int) (capital * 0.05));
-        }
-        //bidding
-        if (rc.getTeamVotes() <= 1501) {
-            if (rc.getRoundNum() >= 100) {
-                votesthisround = rc.getTeamVotes();
-                if (votesthisround == voteslastround && bid < capital) {
-                    bid = bid * 1.01;
-                }
-                System.out.println("I will bid " + (int) bid);
-                if (rc.canBid((int) bid)) {
-                    rc.bid((int) bid);
-                } else {
-                    bid = capital/4;
-                    rc.bid((int) bid);
-                }
-                voteslastround = votesthisround;
+        if (enemyECloc != null) {
+            for (Direction dir : Util.directions) {
+                tryBuild(RobotType.POLITICIAN, dir, (int) (capital * 0.05));
             }
         }
 
-        capital2 = capital;
+        if (rc.getRoundNum() <=2 || (rc.getRoundNum()>=200 && capital <300)){
+            System.out.println("the first few rounds");
+            tryBuild(RobotType.SLANDERER, null, capital);
+        }else if ((capital < 1000 || rc.getRoundNum() % 4 == 0)&& capital >= 200) {
+            tryBuild(RobotType.SLANDERER, null, capital/2); //trust me, this is a good amount
+        }else if (capital >= 1000){
+            tryBuild(RobotType.MUCKRAKER,null,capital/20);
+        }
+        //bidding
+        if (rc.getRoundNum() >= 100) {
+            votesthisround = rc.getTeamVotes();
+            if (votesthisround == voteslastround && bid < capital) {
+                bid = bid * 1.01;
+            }
+            if (bid <= 5) {
+                bid = Util.getRandomNumberInRange(10, 20);
+            }
+            System.out.println("I will bid " + (int) bid);
+            if (rc.canBid((int) bid)) {
+                rc.bid((int) bid);
+            } else {
+                bid = capital/4;
+                rc.bid((int) bid);
+            }
+            voteslastround = votesthisround;
+        }
     }
-
     boolean tryBuild(RobotType rt, Direction dir, int influence) throws GameActionException {
         if (rc.isReady()) {
             if (dir != null) {
@@ -76,15 +76,12 @@ public class EnlightenmentCenter extends Robot {
         } return false;
     }
 
-    void updateActiveBots() {
-        if (activebots.size() != 0) {
-            for (Iterator<RobotInfo> iter = activebots.iterator(); iter.hasNext();) {
-                RobotInfo info = iter.next();
-                if (!rc.canSenseRobot(info.ID)) {
-                    iter.remove();
-                } else if (info.team == enemy) {
-                    iter.remove();
-                }
+    void updateActiveBots() throws GameActionException {
+        for (RobotInfo rb : activebots) {
+            if (rc.canSenseRobot(rb.ID)) {
+                activebots.remove(rb);
+            } else if (rb.team == rc.getTeam().opponent()) {
+                activebots.remove(rb);
             }
         }
     }

@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class Muckraker extends Unit {
     boolean free = false; //wenn ein muckraker ausserhalb des verteidigungsringes ist
-    MapLocation born = rc.getLocation();
+    MapLocation myenemyECloc = null;
     Team enemy = rc.getTeam().opponent();
     public Muckraker(RobotController r) {
         super(r);
@@ -24,18 +24,32 @@ public class Muckraker extends Unit {
             } break;
         }
 
-        if (move) {
-            if (enemyECloc != null && round > 500) {
-                if(!nav.navigate2(enemyECloc) && myloc.distanceSquaredTo(enemyECloc) < 3) {
-                    move = false;
-                }
-            } else {
-                nav.scout();
+        if (myenemyECloc != null) {
+            if(!nav.navigate2(myenemyECloc) && myloc.distanceSquaredTo(myenemyECloc) < 3) {
+                move = false;
             }
-        } else if (enemyECloc == null) {
-            move = true;
+        } else {
+        for (Direction dir: Direction.allDirections()){
+            if(!rc.onTheMap(myloc.add(dir).add(dir))){
+                nav.runaway(myloc.add(dir));
+            }
         }
-
+        RobotInfo[] bots = rc.senseNearbyRobots();
+        int closest = 0;
+        RobotInfo closestbot;
+        for (RobotInfo bot:bots){
+            if (bot.team == team && bot.type == RobotType.MUCKRAKER && bot.location.distanceSquaredTo(myloc)<=closest){
+                closest = bot.location.distanceSquaredTo(myloc);
+                closestbot = bot;
+            }
+        }
+        nav.scout();
+        for (RobotInfo bot:nearbyEnemys){
+            if (bot.type==RobotType.ENLIGHTENMENT_CENTER){
+                MapLocation myenemyECloc = bot.location;
+            }
+        }
+        }
 
         /**
         for (RobotInfo robot : rc.senseNearbyRobots(30, enemy)) {

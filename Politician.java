@@ -13,6 +13,15 @@ public class Politician extends Unit {
     }
     public void takeTurn() throws  GameActionException{
         super.takeTurn();
+        for (RobotInfo bot : rc.senseNearbyRobots()) {
+            if (bot.type == RobotType.ENLIGHTENMENT_CENTER && bot.team != team) {
+                enemyECloc = bot.location;
+            }
+        }
+        if (enemyECloc != null) {
+            System.out.println("I am attacking a enemy EC");
+            attack(enemyECloc, 1);
+        }
         if (rc.getLocation() == bornhere) {
             System.out.println("this shouldnt happen so often");
         }
