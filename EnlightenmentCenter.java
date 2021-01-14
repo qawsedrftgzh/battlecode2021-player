@@ -27,7 +27,7 @@ public class EnlightenmentCenter extends Robot {
             }
         }
 
-        if (rc.getRoundNum() <=2 || (rc.getRoundNum()>=200 && capital <300)){
+        if (rc.getRoundNum() <=2 || (rc.getRoundNum()>=200 && capital <200 && capital>=30)){
             System.out.println("the first few rounds");
             tryBuild(RobotType.SLANDERER, null, capital);
         }else if ((capital < 1000 || rc.getRoundNum() % 4 == 0)&& capital >= 200) {
@@ -36,13 +36,13 @@ public class EnlightenmentCenter extends Robot {
             tryBuild(RobotType.MUCKRAKER,null,capital/20);
         }
         //bidding
-        if (rc.getRoundNum() >= 100) {
+        if (rc.getTeamVotes() <= 750) {
             votesthisround = rc.getTeamVotes();
             if (votesthisround == voteslastround && bid < capital) {
                 bid = bid * 1.01;
             }
-            if (bid <= 5) {
-                bid = Util.getRandomNumberInRange(10, 20);
+            if (bid <= 0) {
+                bid = Util.getRandomNumberInRange(5, 15);
             }
             System.out.println("I will bid " + (int) bid);
             if (rc.canBid((int) bid)) {
