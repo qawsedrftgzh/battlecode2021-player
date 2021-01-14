@@ -5,6 +5,7 @@ public class Unit extends Robot {
     Navigation nav;
     MapLocation ECloc;
     MapLocation myloc;
+    boolean move = true;
 
     public Unit(RobotController r) {
         super(r);
