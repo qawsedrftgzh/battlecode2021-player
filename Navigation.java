@@ -27,6 +27,18 @@ public class Navigation {
             return false;
         }
     }
+
+    public boolean tryMove(Direction dir, boolean limitPassability) throws GameActionException {
+        double passabilityLimit_local;
+        if (limitPassability) { passabilityLimit_local = passabilityLimit; }
+        else { passabilityLimit_local = 0.0; }
+        if (rc.canMove(dir) && rc.sensePassability(rc.getLocation().add(dir)) > passabilityLimit_local) {
+            rc.move(dir);
+            return true;
+        } else {
+            return false;
+        }
+    }
     public Direction rotate(Direction dir,int grade) {
         int pos = -1;
         for(int i = 0; i < Util.directions.length; i++) {
@@ -102,5 +114,18 @@ public class Navigation {
                System.out.println("changed scouting direction to " + scoutDir);
            }
        }
+    }
+
+    void orbit(MapLocation center, int maxDistance, int tolerance) throws GameActionException {
+        MapLocation myloc = rc.getLocation();
+        int distanceToCenter = myloc.distanceSquaredTo(center);
+        int minDistance = maxDistance - tolerance;
+        if (distanceToCenter >= minDistance && distanceToCenter <= maxDistance) {
+            tryMove(myloc.directionTo(center).rotateLeft().rotateLeft(), false);
+        } else if (distanceToCenter < minDistance) {
+            tryMove(myloc.directionTo(center).opposite(), false);
+        } else if (distanceToCenter > maxDistance) {
+            tryMove(myloc.directionTo(center), false);
+        }
     }
 }
