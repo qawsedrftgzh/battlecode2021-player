@@ -16,7 +16,7 @@ public class EnlightenmentCenter extends Robot {
     }
 
     public void takeTurn() throws GameActionException {
-        if (round > 1000) {rc.resign();}
+        if (round > 1000) {rc.resign();} // TODO <- remove!!!
         super.takeTurn();
         capital = rc.getInfluence();
         income = capital - capital2;
@@ -24,30 +24,33 @@ public class EnlightenmentCenter extends Robot {
         updateActiveBots();
         updateFlag();
 
-        if (income < 100 && round % 10 == 0) {
+        if (rc.senseNearbyRobots(3, enemy).length >= 4) {
+            tryBuild(RobotType.POLITICIAN, null, capital);
+        }
+        if (income < 50 && round % 10 == 0) {
             tryBuild(RobotType.SLANDERER, null, (int) (capital * 0.25));
 
         } else {
-            tryBuild(RobotType.MUCKRAKER,null,(int) (capital * 0.01));
+            tryBuild(RobotType.MUCKRAKER,null,(int) (capital * 0.05));
         }
         //bidding
-        if (rc.getRoundNum() >= 100) {
-            votesthisround = rc.getTeamVotes();
-            if (votesthisround == voteslastround && bid < capital) {
-                bid = bid * 1.01;
+        if (rc.getTeamVotes() <= 1501) {
+            if (rc.getRoundNum() >= 100) {
+                votesthisround = rc.getTeamVotes();
+                if (votesthisround == voteslastround && bid < capital) {
+                    bid = bid * 1.01;
+                }
+                System.out.println("I will bid " + (int) bid);
+                if (rc.canBid((int) bid)) {
+                    rc.bid((int) bid);
+                } else {
+                    bid = capital/4;
+                    rc.bid((int) bid);
+                }
+                voteslastround = votesthisround;
             }
-            if (votesthisround > voteslastround && bid > 1) {
-                bid = bid / 1.01;
-            }
-            System.out.println("I will bid " + (int) bid);
-            if (rc.canBid((int) bid)) {
-                rc.bid((int) bid);
-            } else {
-                bid = capital/4;
-                rc.bid((int) bid);
-            }
-            voteslastround = votesthisround;
         }
+
         capital2 = capital;
     }
 
