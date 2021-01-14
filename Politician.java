@@ -12,8 +12,12 @@ public class Politician extends Unit {
 
     }
     public void takeTurn() throws  GameActionException{
+        super.takeTurn();
         if (rc.getLocation() == bornhere) {
             System.out.println("this shouldnt happen so often");
+        }
+        if (nearbyEnemys.length > 0) {
+            tryEmpower(actionRadius);
         }
         attack(bornhere,2);
         System.out.println(bornhere);
@@ -55,6 +59,13 @@ public class Politician extends Unit {
                 }
             }
         } **/
+    }
+
+    boolean tryEmpower(int r) throws GameActionException {
+        if (rc.isReady() && rc.canEmpower(r)) {
+            rc.empower(r);
+            return true;
+        } return false;
     }
 
     boolean attackProtocol() throws GameActionException {
