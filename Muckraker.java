@@ -12,6 +12,10 @@ public class Muckraker extends Unit {
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
+        if (enemyECloc != null) {
+            System.out.println("I am attacking a enemy EC");
+            nav.navigate(enemyECloc);
+        }
         for (RobotInfo robot : attackable) {
             if (robot.type.canBeExposed()) {
                 // It's a slanderer... go get them!
@@ -22,19 +26,12 @@ public class Muckraker extends Unit {
                 }
             } break;
         }
-        for (RobotInfo robot : rc.senseNearbyRobots(30, enemy)) {
+        for (RobotInfo robot : nearbyEnemys) {
             // It's a enemy... go get them!
             if (robot.type.canBeExposed()) { //Dont follow muckrakers, to prevent muckracer running around theirselves
                 nav.navigate(robot.location);
             }
             break;
-        }
-
-        int mupol = 0; //muckracer and politicians in a radius of 10
-        for (RobotInfo bot : rc.senseNearbyRobots(3, team)) {
-            if (bot.type == RobotType.MUCKRAKER || bot.type == RobotType.POLITICIAN) {
-                mupol++;
-            }
         }
         if (rc.getLocation() == bornhere) {
             if (!nav.tryMove(Util.randomDirection())) {
@@ -42,29 +39,17 @@ public class Muckraker extends Unit {
                     nav.tryMove(dir);
                 }
             }
-        } else if ((mupol >= 5 && rc.getLocation().distanceSquaredTo(bornhere) >= 40) || free) {
-            RobotInfo[] bots = rc.senseNearbyRobots();
-            int closest = 20000;
-            RobotInfo closestbot = null;
-            for (RobotInfo bot : bots) {
-                if (bot.team == team && bot.type == RobotType.MUCKRAKER && bot.location.distanceSquaredTo(myloc) <= closest) {
-                    closest = bot.location.distanceSquaredTo(myloc);
-                    closestbot = bot;
-                }
+        }
+        int closest = 20000;
+        RobotInfo closestbot = null;
+        for (RobotInfo bot : nearbyTeam) {
+            if (bot.type == RobotType.MUCKRAKER && bot.location.distanceSquaredTo(myloc) <= closest) {
+                closest = bot.location.distanceSquaredTo(myloc);
+                closestbot = bot;
             }
-            if (closestbot != null) {
-                nav.runaway(closestbot.location);
-            }
-            for (RobotInfo bot : nearbyEnemys) {
-                if (bot.type == RobotType.ENLIGHTENMENT_CENTER) {
-                    MapLocation enemyECloc = bot.location;
-                }
-            }
-            free = true;
-        } else if (rc.getLocation().distanceSquaredTo(bornhere) <= 60) {
-            nav.runaway(bornhere);
-        } else {
-            return;
+        }
+        if (closestbot != null) {
+            nav.runaway(closestbot.location);
         }
         for (Direction dir : Direction.allDirections()) {
             if (!rc.onTheMap(myloc.add(dir).add(dir))) {

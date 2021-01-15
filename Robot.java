@@ -9,6 +9,7 @@ public class Robot {
     Team enemy, team;
     RobotType type;
     MapLocation enemyECloc;
+    MapLocation neutralECloc;
     MapLocation bornhere;
     RobotInfo[] nearbyTeam, nearbyEnemys, attackable, all;
     int actionRadius, sensorRadius, detectionRadius;

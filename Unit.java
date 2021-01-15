@@ -63,19 +63,27 @@ public class Unit extends Robot {
                 }
             } else { enemyECloc = null; }
         }
-        if (enemyECloc == null) {
-            if (nearbyEnemys.length != 0) {
-                for (RobotInfo b : nearbyEnemys) {
-                    if (b.type == RobotType.ENLIGHTENMENT_CENTER) {
-                        if (!(nearbyTeam.length == 0)) {
-                            enemyECloc = b.location;
-                        }
-                        flags.sendLocationWithInfo(b.location, InfoCodes.STARTATTACK);
-                        break;
+        if (nearbyEnemys.length != 0) {
+            for (RobotInfo b : nearbyEnemys) {
+                if (b.type == RobotType.ENLIGHTENMENT_CENTER) {
+                    if (!(nearbyTeam.length == 0)) {
+                        enemyECloc = b.location;
                     }
+                    flags.sendLocationWithInfo(b.location, InfoCodes.STARTATTACK);
+                    break;
                 }
             }
-
+        }
+        if (all.length != 0) {
+            for (RobotInfo b : all) {
+                if (b.type == RobotType.ENLIGHTENMENT_CENTER && b.team != team) {
+                    if (!(nearbyTeam.length == 0)) {
+                        neutralECloc = b.location;
+                    }
+                    flags.sendLocationWithInfo(b.location, InfoCodes.STARTATTACK);
+                    break;
+                }
+            }
         }
     }
 }
