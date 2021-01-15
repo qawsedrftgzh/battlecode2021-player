@@ -72,10 +72,6 @@ public class Muckraker extends Unit {
             System.out.println("Chilling waiting for uhm... for the end of timeeee");
         }
     }
-
-    public void takeTurn2() throws GameActionException{
-        nav.navigate(new MapLocation(0,0));
-    }
 }
 
 
