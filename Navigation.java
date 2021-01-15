@@ -5,7 +5,7 @@ import battlecode.common.*;
 public class Navigation {
     RobotController rc;
     Direction scoutDir;
-    double passabilityLimit = 0.0;
+    double passabilityLimit = 0.2;
 
     public Navigation(RobotController r) {
         rc = r;
@@ -49,7 +49,8 @@ public class Navigation {
         }
         return Util.directions[(pos+grade)%8];
     }
-    boolean navigate(MapLocation loc) throws GameActionException{
+
+    boolean navigate2(MapLocation loc) throws GameActionException{
         MapLocation myloc = rc.getLocation();
         if (myloc == loc) {
             return true;
@@ -66,7 +67,7 @@ public class Navigation {
         }
     }
 
-    boolean navigate2(MapLocation dest) throws GameActionException {
+    boolean navigate(MapLocation dest) throws GameActionException {
        MapLocation myloc = rc.getLocation();
        if (myloc == dest) {
            return true;
@@ -78,6 +79,20 @@ public class Navigation {
        if (tryMove(dir.rotateRight().rotateRight())) { return true; }
        if (tryMove(dir.rotateLeft().rotateLeft())) { return true; }
        return false;
+    }
+
+    boolean navigate(MapLocation dest, boolean limitPassability) throws GameActionException {
+        MapLocation myloc = rc.getLocation();
+        if (myloc == dest) {
+            return true;
+        }
+        Direction dir = myloc.directionTo(dest);
+        if (tryMove(dir, limitPassability)) { return true; }
+        if (tryMove(dir.rotateRight(), limitPassability)) { return true; }
+        if (tryMove(dir.rotateLeft(), limitPassability)) { return true; }
+        if (tryMove(dir.rotateRight().rotateRight(), limitPassability)) { return true; }
+        if (tryMove(dir.rotateLeft().rotateLeft(), limitPassability)) { return true; }
+        return false;
     }
 
     boolean runaway(MapLocation loc) throws GameActionException {
@@ -116,16 +131,23 @@ public class Navigation {
        }
     }
 
-    void orbit(MapLocation center, int maxDistance, int tolerance) throws GameActionException {
+    void orbit(MapLocation center, int maxDistance, int minDistance) throws GameActionException {
         MapLocation myloc = rc.getLocation();
         int distanceToCenter = myloc.distanceSquaredTo(center);
-        int minDistance = maxDistance - tolerance;
-        if (distanceToCenter >= minDistance && distanceToCenter <= maxDistance) {
-            tryMove(myloc.directionTo(center).rotateLeft().rotateLeft(), false);
-        } else if (distanceToCenter < minDistance) {
-            tryMove(myloc.directionTo(center).opposite(), false);
+        if (distanceToCenter < minDistance) {
+            tryMove(myloc.directionTo(center).opposite().rotateLeft(), false);
         } else if (distanceToCenter > maxDistance) {
             tryMove(myloc.directionTo(center), false);
+        }
+        Direction dir = myloc.directionTo(center).rotateLeft().rotateLeft();
+        if (myloc.add(dir).distanceSquaredTo(center) > maxDistance) {
+            dir = dir.rotateRight();
+        } else if (myloc.add(dir).distanceSquaredTo(center) < minDistance) {
+            dir = dir.rotateLeft();
+        }
+
+        if (navigate(myloc.add(dir))) {
+            Clock.yield();
         }
     }
 }
