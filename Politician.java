@@ -18,6 +18,14 @@ public class Politician extends Unit {
                 enemyECloc = bot.location;
             }
         }
+        if (nearbyEnemys.length == 1){
+            RobotInfo bot = nearbyEnemys[0];
+            if (bot.location.distanceSquaredTo(rc.getLocation())<3){
+                rc.empower(2);
+            }else {
+                nav.navigate(bot.location, false);
+            }
+        }
         if (neutralECloc != null){
             attack(enemyECloc, 1);
         }
@@ -25,14 +33,13 @@ public class Politician extends Unit {
             System.out.println("I am attacking a enemy EC");
             attack(enemyECloc, 1);
         }
-        if (rc.getLocation() == bornhere) {
-            System.out.println("this shouldnt happen so often");
-        }
         if (nearbyEnemys.length > 0) {
             tryEmpower(actionRadius);
         }
-        attack(bornhere,2);
-        System.out.println(bornhere);
+        if (!idleMovement()){
+            rc.empower(1);
+        }
+        nav.scout();
     }
     public void takeTurn2() throws GameActionException {
         super.takeTurn();
@@ -102,9 +109,9 @@ public class Politician extends Unit {
     }
 
     boolean idleMovement() throws GameActionException {
-        if (!nav.tryMove(Util.randomDirection())) {
+        if (!rc.canMove(Util.randomDirection())) {
             for (Direction dir : Util.directions) {
-                if (nav.tryMove(dir)) {
+                if (rc.canMove(dir)) {
                     return true;
                 }
             }
