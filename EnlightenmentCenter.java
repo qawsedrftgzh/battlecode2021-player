@@ -105,10 +105,11 @@ public class EnlightenmentCenter extends Robot {
             enemyECloc = null;
             return;
         }
-
+        RobotInfo[] botsToCheck;
         if (activebots.size() == 0) {
-            RobotInfo[] botsToCheck = nearbyTeam;
+            botsToCheck = nearbyTeam;
         } else {
+            botsToCheck = new RobotInfo[activebots.size()];
             botsToCheck = activebots.toArray(botsToCheck);
         }
         for (RobotInfo b : botsToCheck) {
