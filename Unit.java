@@ -55,15 +55,21 @@ public class Unit extends Robot {
             flags.sendLocationWithInfo(enemyECloc, InfoCodes.STARTATTACK);
         }
         if (enemyECloc != null && rc.canSenseLocation(enemyECloc)) {
-            RobotInfo[] botAtLocation = rc.senseNearbyRobots(enemyECloc, 0, enemy);
-            if (botAtLocation.length != 0) {
-                if (botAtLocation[0].type != RobotType.ENLIGHTENMENT_CENTER) {
+            RobotInfo[] enemyAtLocation = rc.senseNearbyRobots(enemyECloc, 0, enemy);
+            if (enemyAtLocation.length != 0) {
+                if (enemyAtLocation[0].type != RobotType.ENLIGHTENMENT_CENTER) {
                     flags.sendLocationWithInfo(enemyECloc, InfoCodes.STOPATTACK);
                     enemyECloc = null;
                 }
-            } else { enemyECloc = null; }
+            } else {
+                RobotInfo[] teamAtLocation = rc.senseNearbyRobots(enemyECloc, 0, team);
+                if (teamAtLocation.length != 0) {
+                    flags.sendLocationWithInfo(enemyECloc, InfoCodes.STOPATTACK);
+                    enemyECloc = null;
+                }
+            }
         }
-        if (nearbyEnemys.length != 0) {
+        if (enemyECloc == null && nearbyEnemys.length != 0) {
             for (RobotInfo b : nearbyEnemys) {
                 if (b.type == RobotType.ENLIGHTENMENT_CENTER) {
                     if (!(nearbyTeam.length == 0)) {
@@ -76,7 +82,7 @@ public class Unit extends Robot {
         }
         if (all.length != 0) {
             for (RobotInfo b : all) {
-                if (b.type == RobotType.ENLIGHTENMENT_CENTER && b.team != team) {
+                if (b.type == RobotType.ENLIGHTENMENT_CENTER && b.team == Team.NEUTRAL) {
                     if (!(nearbyTeam.length == 0)) {
                         neutralECloc = b.location;
                     }
