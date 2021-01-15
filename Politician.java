@@ -18,6 +18,9 @@ public class Politician extends Unit {
                 enemyECloc = bot.location;
             }
         }
+        if (neutralECloc != null){
+            attack(enemyECloc, 1);
+        }
         if (enemyECloc != null) {
             System.out.println("I am attacking a enemy EC");
             attack(enemyECloc, 1);

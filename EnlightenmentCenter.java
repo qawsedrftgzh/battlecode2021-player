@@ -22,20 +22,25 @@ public class EnlightenmentCenter extends Robot {
         income = capital - capital2;
         updateActiveBots();
         updateFlag();
-
+        if (nearbyEnemys.length != 0){
+            tryBuild(RobotType.POLITICIAN, null, (int) (capital * 0.05));
+        }
         if (enemyECloc != null) {
-            for (Direction dir : Util.directions) {
-                tryBuild(RobotType.POLITICIAN, dir, (int) (capital * 0.05));
+            if (round%4==0){
+                tryBuild(RobotType.MUCKRAKER, null, 1);
+            }else if (round%4==1 || round%4==2){
+                tryBuild(RobotType.POLITICIAN, null, (int) (capital * 0.05));
+            } else {
+                tryBuild(RobotType.SLANDERER, null, (int) (capital * 0.2));
             }
         }
-
         if (rc.getRoundNum() <=2 || (rc.getRoundNum()>=200 && capital <200 && capital>=30)){
             System.out.println("the first few rounds");
             tryBuild(RobotType.SLANDERER, null, capital);
-        }else if ((capital < 1000 || rc.getRoundNum() % 4 == 0)&& capital >= 200) {
-            tryBuild(RobotType.SLANDERER, null, capital/2); //trust me, this is a good amount
-        }else if (capital >= 1000){
-            tryBuild(RobotType.MUCKRAKER,null,capital/20);
+        }else if (rc.getRoundNum() % 4 == 0 && capital >= 200) {
+            tryBuild(RobotType.SLANDERER, null, capital/4); //trust me, this is a good amount
+        }else{
+            tryBuild(RobotType.MUCKRAKER,null,1);
         }
         //bidding
         if (rc.getTeamVotes() <= 750) {

@@ -18,13 +18,7 @@ public class Slanderer extends Unit {
             }
         }
         System.out.println(turnCount);
-        if (turnCount<=10){
-            nav.scout();
-        }else if(turnCount<=300) {
-            nav.runaway(born);
-        }else {
-            nav.navigate(born);
-        }
+        nav.orbit(ECloc,50,5);
     }
 }
 
