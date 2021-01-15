@@ -95,7 +95,18 @@ public class EnlightenmentCenter extends Robot {
     }
 
     void updateFlag() throws GameActionException {
-        for (RobotInfo b : activebots) {
+        if (enemyECloc != null && enemyECloc == rc.getLocation()) {
+            flags.sendLocationWithInfo(rc.getLocation(), InfoCodes.STOPATTACK);
+            enemyECloc = null;
+            return;
+        }
+
+        if (activebots.size() == 0) {
+            RobotInfo[] botsToCheck = nearbyTeam;
+        } else {
+            botsToCheck = activebots.toArray(botsToCheck);
+        }
+        for (RobotInfo b : botsToCheck) {
             if (rc.canGetFlag(b.ID)) {
                 int flag = rc.getFlag(b.ID);
                 if (flag != 0) {
