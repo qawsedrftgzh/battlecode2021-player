@@ -7,7 +7,6 @@ import java.util.Iterator;
 public class EnlightenmentCenter extends Robot {
     double bid = 10;
     int voteslastround=0, votesthisround=0;
-    int Muckraker_Num = 0;
     int capital; // current amount of influence
     int capital2; // capital of previous round
     int income; // income per round (capital-capital2)
