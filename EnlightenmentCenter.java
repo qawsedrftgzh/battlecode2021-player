@@ -2,24 +2,27 @@ package battlecode2021;
 import battlecode.common.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class EnlightenmentCenter extends Robot {
     double bid = 10;
-    int voteslastround=0;
-    int votesthisround=0;
+    int voteslastround=0, votesthisround=0;
+    int Muckraker_Num = 0;
     int capital; // current amount of influence
-    ArrayList<RobotInfo> activebots = new ArrayList<RobotInfo>();
+    int capital2; // capital of previous round
+    int income; // income per round (capital-capital2)
+    ArrayList<RobotInfo> activebots = new ArrayList<>();
 
     public EnlightenmentCenter(RobotController r) {
         super(r);
     }
 
-    // a 2. takeTurn() function for testing
     public void takeTurn() throws GameActionException {
         super.takeTurn();
+        capital = rc.getInfluence();
+        income = capital - capital2;
         updateActiveBots();
         updateFlag();
-        capital = rc.getInfluence();
 
         if (enemyECloc != null) {
             for (Direction dir : Util.directions) {
@@ -53,7 +56,10 @@ public class EnlightenmentCenter extends Robot {
             }
             voteslastround = votesthisround;
         }
+
+        capital2 = capital;
     }
+
     boolean tryBuild(RobotType rt, Direction dir, int influence) throws GameActionException {
         if (rc.isReady()) {
             if (dir != null) {
@@ -76,12 +82,15 @@ public class EnlightenmentCenter extends Robot {
         } return false;
     }
 
-    void updateActiveBots() throws GameActionException {
-        for (RobotInfo rb : activebots) {
-            if (rc.canSenseRobot(rb.ID)) {
-                activebots.remove(rb);
-            } else if (rb.team == rc.getTeam().opponent()) {
-                activebots.remove(rb);
+    void updateActiveBots() {
+        if (activebots.size() != 0) {
+            for (Iterator<RobotInfo> iter = activebots.iterator(); iter.hasNext(); ) {
+                RobotInfo info = iter.next();
+                if (!rc.canSenseRobot(info.ID)) {
+                    iter.remove();
+                } else if (info.team == enemy) {
+                    iter.remove();
+                }
             }
         }
     }
