@@ -8,7 +8,9 @@ public class Robot {
     int turnCount = 0;
     Team enemy, team;
     RobotType type;
-    ArrayList<MapLocation> enemyEClocs, neutralEClocs, teamEClocs;
+    ArrayList<MapLocation> enemyEClocs = new ArrayList<>();
+    ArrayList<MapLocation> neutralEClocs = new ArrayList<>();
+    ArrayList<MapLocation> teamEClocs = new ArrayList<>();
     MapLocation bornhere;
     RobotInfo[]  nearbyRobots, attackable;
     int actionRadius, sensorRadius, detectionRadius;
