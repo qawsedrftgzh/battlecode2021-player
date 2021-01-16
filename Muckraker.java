@@ -5,7 +5,6 @@ import java.util.Random;
 
 public class Muckraker extends Unit {
     boolean free = false; //wenn ein muckraker ausserhalb des verteidigungsringes ist
-    Team enemy = rc.getTeam().opponent();
     public Muckraker(RobotController r) {
         super(r);
     }
