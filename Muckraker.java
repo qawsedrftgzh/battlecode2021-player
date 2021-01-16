@@ -40,7 +40,7 @@ public class Muckraker extends Unit {
             for (RobotInfo robot : nearbyEnemys) {
                 // It's a enemy... go get them!
                 if (robot.type.canBeExposed()) { //Dont follow muckrakers, to prevent muckracer running around theirselves
-                    nav.navigate(robot.location);
+                    nav.navigate(robot.location, true);
                 }
                 break;
             }
