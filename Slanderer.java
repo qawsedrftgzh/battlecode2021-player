@@ -19,7 +19,7 @@ public class Slanderer extends Unit {
                     neutralEClocs.add(bot.location);
                 }
 
-            }else if (bot.type == RobotType.MUCKRAKER) {
+            }else if (bot.type == RobotType.MUCKRAKER && bot.team == enemy) {
                 muckloc=bot.location;
 
             }
