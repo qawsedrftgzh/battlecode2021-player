@@ -16,8 +16,8 @@ public class Muckraker extends Unit {
     public void takeTurn() throws GameActionException {
         super.takeTurn();
         int disttoenhq = 20000000;
-        if (enemyECloc != null) {
-            disttoenhq = rc.getLocation().distanceSquaredTo(enemyECloc);
+        if (enemyEClocs.get(0) != null) {
+            disttoenhq = rc.getLocation().distanceSquaredTo(enemyEClocs.get(0));
         }
         if (disttoenhq >= 5) {
             for (RobotInfo robot : attackable) {
@@ -31,22 +31,23 @@ public class Muckraker extends Unit {
                 }
                 break;
             }
-            for (RobotInfo robot : nearbyEnemys) {
+            RobotInfo[] enemybots = rc.senseNearbyRobots();
+            for (RobotInfo robot : enemybots) {
                 // It's a enemy... go get them!
                 if (robot.type.canBeExposed()) { //Dont follow muckrakers, to prevent muckracer running around theirselves
                     nav.navigate(robot.location, true);
                 }
                 break;
             }
-            for (RobotInfo robot : nearbyEnemys) {
+            for (RobotInfo robot : enemybots) {
                 if (robot.type == RobotType.ENLIGHTENMENT_CENTER) {
                     nav.navigate(robot.location, false);
-                    enemyECloc = robot.location;
+                    enemyEClocs.add(robot.location);
                 }
             }
-            if (enemyECloc != null) {
+            if (enemyEClocs.size() != 0) {
                 System.out.println("I am attacking a enemy EC");
-                nav.navigate(enemyECloc, false);
+                nav.navigate(enemyEClocs.get(0), false);
             }
             if (rc.getLocation() == bornhere) {
                 if (!nav.tryMove(Util.randomDirection())) {
@@ -73,7 +74,7 @@ public class Muckraker extends Unit {
                     }
                 }
             } else {
-                if (enemyECloc == null) {
+                if (enemyEClocs.size() == 0) {
                     nav.scout();
                 } else {
                     nav.navigate(ECloc,true);
