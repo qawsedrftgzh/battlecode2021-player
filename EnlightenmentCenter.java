@@ -62,7 +62,7 @@ public class EnlightenmentCenter extends Robot {
                     if(rc.canBid((int) bid * 2)) {
                         bid = bid * 2;
                     } else if (rc.canBid( (int) (rc.getInfluence() * 1.1))) {
-                        bid = (int) rc.getInfluence() * 1.1;
+                        bid = (int) (rc.getInfluence() * 1.1);
 
                     } else if (rc.canBid(rc.getInfluence() / 4)) {
                         bid = rc.getInfluence() / 4;
