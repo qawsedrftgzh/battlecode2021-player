@@ -39,4 +39,13 @@ public class Flags {
         MapLocation _final = new MapLocation(x + offsetX, y + offsetY);
         return _final;
     }
+
+    boolean tryFlag(int flag) throws GameActionException {
+        if (rc.canSetFlag(flag)) {
+            rc.setFlag(flag);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
