@@ -129,15 +129,19 @@ public class EnlightenmentCenter extends Robot {
     }
 
     void updateFlag() throws GameActionException {
-        if (neutralEClocs.get(0) != null && neutralEClocs.get(0) == rc.getLocation()) {
-            flags.sendLocationWithInfo(rc.getLocation(), InfoCodes.TEAMEC);
-            enemyEClocs.remove(0);
-            return;
+        if (neutralEClocs.size() != 0) {
+            if (neutralEClocs.get(0) == rc.getLocation()) {
+                flags.sendLocationWithInfo(rc.getLocation(), InfoCodes.TEAMEC);
+                enemyEClocs.remove(0);
+                return;
+            }
         }
-        if (enemyEClocs.get(0) != null && enemyEClocs.get(0) == rc.getLocation()) {
-            flags.sendLocationWithInfo(rc.getLocation(), InfoCodes.TEAMEC);
-            enemyEClocs.remove(0);
-            return;
+        if (enemyEClocs.size() != 0) {
+            if (enemyEClocs.get(0) == rc.getLocation()) {
+                flags.sendLocationWithInfo(rc.getLocation(), InfoCodes.TEAMEC);
+                enemyEClocs.remove(0);
+                return;
+            }
         }
         RobotInfo[] botsToCheck;
         if (activebots.size() == 0) {
