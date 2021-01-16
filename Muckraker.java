@@ -80,7 +80,16 @@ public class Muckraker extends Unit {
                 }
             }
         } else {
-            System.out.println("Chilling waiting for uhm... for the end of timeeee");
+            for (RobotInfo robot : attackable) {
+                if (robot.type.canBeExposed()) {
+                    // It's a slanderer... go get them!
+                    // nav.navigate(robot.location);
+                    if (rc.canExpose(robot.location)) {
+                        rc.expose(robot.location);
+                        break;
+                    }
+                }
+            }
         }
     }
 }

@@ -45,7 +45,7 @@ public class EnlightenmentCenter extends Robot {
                     break;
                 }
             }
-            if (buildsland) {
+            if (buildsland && (int) (capital*0.5) >= 30) {
                 tryBuild(RobotType.SLANDERER,null,(int) (capital*0.5));
             }else if (rc.getRoundNum()%2==0) {
                 tryBuild(RobotType.POLITICIAN, null, (int) (capital*0.1));
