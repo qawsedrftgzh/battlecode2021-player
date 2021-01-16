@@ -1,6 +1,6 @@
 package battlecode2021;
 import battlecode.common.*;
-
+import java.util.ArrayList;
 
 public class Robot {
     RobotController rc;
@@ -8,10 +8,9 @@ public class Robot {
     int turnCount = 0;
     Team enemy, team;
     RobotType type;
-    MapLocation enemyECloc;
-    MapLocation neutralECloc;
+    ArrayList<MapLocation> enemyEClocs, neutralEClocs, teamEClocs;
     MapLocation bornhere;
-    RobotInfo[] nearbyTeam, nearbyEnemys, attackable, all;
+    RobotInfo[]  nearbyRobots, attackable;
     int actionRadius, sensorRadius, detectionRadius;
     int round;
 
@@ -27,15 +26,13 @@ public class Robot {
         actionRadius = type.actionRadiusSquared;
         sensorRadius = type.sensorRadiusSquared;
         detectionRadius = type.detectionRadiusSquared;
-
     }
 
     public void takeTurn() throws GameActionException {
         turnCount += 1;
         round = rc.getRoundNum();
-        nearbyTeam = rc.senseNearbyRobots(sensorRadius, team);
-        nearbyEnemys = rc.senseNearbyRobots(sensorRadius, enemy);
+        // TODO \/ rewrite if there are bytecode problems
+        nearbyRobots = rc.senseNearbyRobots(sensorRadius);
         attackable = rc.senseNearbyRobots(actionRadius, enemy);
-        all = rc.senseNearbyRobots(sensorRadius);
     }
 }
