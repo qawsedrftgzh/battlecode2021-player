@@ -11,11 +11,13 @@ public class Slanderer extends Unit {
     public void takeTurn() throws GameActionException {
         super.takeTurn();
         System.out.println("Hello i am a slanderer");
-        for (RobotInfo bot : nearbyEnemys) {
-            if (bot.type == RobotType.MUCKRAKER) {
-                nav.runaway(bot.location);
-                muckloc=bot.location;
+        for (RobotInfo bot : nearbyRobots) {
+            if (bot.team == enemy) {
+                if (bot.type == RobotType.MUCKRAKER) {
+                    nav.runaway(bot.location);
+                    muckloc = bot.location;
 
+                }
             }
         }
         System.out.println(turnCount);
