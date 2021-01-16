@@ -6,6 +6,7 @@ public class Navigation {
     RobotController rc;
     Direction scoutDir;
     double passabilityLimit = 0.2;
+    int failed = 0; // number of failed attempts to move exactly in given direction
 
     public Navigation(RobotController r) {
         rc = r;
@@ -50,7 +51,7 @@ public class Navigation {
         return Util.directions[(pos+grade)%8];
     }
 
-    boolean navigate2(MapLocation loc) throws GameActionException{
+    boolean navigate3(MapLocation loc) throws GameActionException{
         MapLocation myloc = rc.getLocation();
         if (myloc == loc) {
             return true;
@@ -67,7 +68,7 @@ public class Navigation {
         }
     }
 
-    boolean navigate(MapLocation dest) throws GameActionException {
+    boolean navigate2(MapLocation dest) throws GameActionException {
        MapLocation myloc = rc.getLocation();
        if (myloc == dest) {
            return true;
@@ -86,12 +87,17 @@ public class Navigation {
         if (myloc == dest) {
             return true;
         }
+        if (rc.sensePassability(myloc) > passabilityLimit || failed >= 5) {
+            limitPassability = false;
+            failed = 0;
+        }
         Direction dir = myloc.directionTo(dest);
-        if (tryMove(dir, limitPassability)) { return true; }
-        if (tryMove(dir.rotateRight(), limitPassability)) { return true; }
-        if (tryMove(dir.rotateLeft(), limitPassability)) { return true; }
-        if (tryMove(dir.rotateRight().rotateRight(), limitPassability)) { return true; }
-        if (tryMove(dir.rotateLeft().rotateLeft(), limitPassability)) { return true; }
+        if (tryMove(dir, limitPassability)) { if (failed >= 1) { failed -= 1; } return true; }
+        if (tryMove(dir.rotateRight(), limitPassability)) { failed += 1; return true; }
+        if (tryMove(dir.rotateLeft(), limitPassability)) { failed += 1; return true; }
+        if (tryMove(dir.rotateRight().rotateRight(), limitPassability)) { failed += 1; return true; }
+        if (tryMove(dir.rotateLeft().rotateLeft(), limitPassability)) { failed += 1; return true; }
+        failed += 1;
         return false;
     }
 
@@ -135,9 +141,9 @@ public class Navigation {
         MapLocation myloc = rc.getLocation();
         int distanceToCenter = myloc.distanceSquaredTo(center);
         if (distanceToCenter < minDistance) {
-            tryMove(myloc.directionTo(center).opposite().rotateLeft(), false);
+            navigate(myloc.add(myloc.directionTo(center).opposite()), false);
         } else if (distanceToCenter > maxDistance) {
-            tryMove(myloc.directionTo(center), false);
+            navigate(myloc.add(myloc.directionTo(center)), false);
         }
         Direction dir = myloc.directionTo(center).rotateLeft().rotateLeft();
         if (myloc.add(dir).distanceSquaredTo(center) > maxDistance) {
@@ -146,7 +152,7 @@ public class Navigation {
             dir = dir.rotateLeft();
         }
 
-        if (navigate(myloc.add(dir))) {
+        if (navigate(myloc.add(dir), false)) {
             Clock.yield();
         }
     }
