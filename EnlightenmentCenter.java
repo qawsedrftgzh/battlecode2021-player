@@ -29,6 +29,7 @@ public class EnlightenmentCenter extends Robot {
         super.takeTurn();
         capital = rc.getInfluence();
         income = capital - capital2;
+        int actualround = rc.getRoundNum();
         int polimount = (int) (capital * 0.05);
         if (polimount < 20){
             polimount = 20;
@@ -50,18 +51,18 @@ public class EnlightenmentCenter extends Robot {
             }
             if (buildsland && (int) (capital*0.5) >= 30) {
                 tryBuild(RobotType.SLANDERER,null,(int) (capital*0.5));
-            }else if (rc.getRoundNum()%2==0) {
+            }else if (actualround%2==0) {
                 tryBuild(RobotType.POLITICIAN, null, (int) (capital*0.1));
             } else {
                 tryBuild(RobotType.MUCKRAKER, null, (int) (capital*0.05));
             }
         }
-        if (rc.getRoundNum() <=2 || (capital <200 && capital>=30)){
+        if (actualround <=2 || (capital <200 && capital>=30)){
             System.out.println("the first few rounds");
             tryBuild(RobotType.SLANDERER, null, capital);
-        }else if (rc.getRoundNum() % 3 == 0 && capital >= 50) {
+        }else if (actualround % 3 == 0 && capital >= 50) {
             tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital/2)); //trust me, this is a good amount
-        }else if (rc.getRoundNum() % 3 == 2 && capital >= 50 && (neutralEClocs.size() != 0 || enemyEClocs.size() != 0)){
+        }else if (actualround % 3 == 2 && capital >= 50 && (neutralEClocs.size() != 0 || enemyEClocs.size() != 0)){
             tryBuild(RobotType.POLITICIAN,null, (int) (capital * 0.05));
         }else if (capital >= 50){
             tryBuild(RobotType.MUCKRAKER,null,(int) (capital * 0.05));
@@ -80,6 +81,13 @@ public class EnlightenmentCenter extends Robot {
 
                     } else if (rc.canBid(1)) {
                         bid = 1;
+                    }
+                    if (actualround <= 250 && bid > capital / 4){
+                        bid = (int) (capital/4);
+                    }else if (actualround >= 250 && actualround <= 750 && bid > capital / 2){
+                        bid = (int) (capital/2);
+                    } else if (actualround >= 250 && actualround <= 750 && bid > capital * 0.75){
+                        bid = (int) (capital/2);
                     }
             } else {
                 bid = (int) bid * (0.99);
