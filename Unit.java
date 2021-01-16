@@ -2,6 +2,8 @@ package battlecode2021;
 import battlecode.common.*;
 
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.Map;
 
 public class Unit extends Robot {
     Navigation nav;
@@ -80,11 +82,12 @@ public class Unit extends Robot {
         if (neutralEClocs.size() > 0 || nearbyRobots.length > 0) {
             if (neutralEClocs.size() > 0) {
                 neutralEClocs.sort(Comparator.comparingInt(x -> myloc.distanceSquaredTo(x))); // TODO check if it sorts right
-                for (MapLocation loc : neutralEClocs) {
+                for (Iterator<MapLocation> iter = neutralEClocs.iterator(); iter.hasNext();) {
+                    MapLocation loc = iter.next();
                     if (rc.canSenseLocation(loc)) {
                         RobotInfo[] neutralAtLocation = rc.senseNearbyRobots(loc, 0, Team.NEUTRAL);
                         if (neutralAtLocation.length <= 0) {
-                            neutralEClocs.remove(loc);
+                            iter.remove();
                             RobotInfo[] teamAtLocation = rc.senseNearbyRobots(loc, 0, team);
                             if (teamAtLocation.length > 0) {
                                 if (!teamEClocs.contains(loc)) {
@@ -113,11 +116,12 @@ public class Unit extends Robot {
         else if (enemyEClocs.size() > 0 || nearbyRobots.length > 0) {
             if (enemyEClocs.size() > 0) {
                 enemyEClocs.sort(Comparator.comparingInt(x -> myloc.distanceSquaredTo(x))); // TODO check if it sorts right
-                for (MapLocation loc : enemyEClocs) {
+                for (Iterator<MapLocation> iter = enemyEClocs.iterator(); iter.hasNext();) {
+                    MapLocation loc = iter.next();
                     if (rc.canSenseLocation(loc)) {
                         RobotInfo[] enemyAtLocation = rc.senseNearbyRobots(loc, 0, enemy);
                         if (enemyAtLocation.length <= 0) {
-                            enemyEClocs.remove(loc);
+                            iter.remove();
                             if (!teamEClocs.contains(loc)) {
                                 teamEClocs.add(loc);
                             }
@@ -138,11 +142,12 @@ public class Unit extends Robot {
         // update team EC locations
         else if (teamEClocs.size() > 0 || nearbyRobots.length > 0) {
             if (teamEClocs.size() > 0) {
-                for (MapLocation loc : teamEClocs) {
+                for (Iterator<MapLocation> iter = teamEClocs.iterator(); iter.hasNext();) {
+                    MapLocation loc = iter.next();
                     if (rc.canSenseLocation(loc)) {
                         RobotInfo[] teamAtLocation = rc.senseNearbyRobots(loc, 0, team);
                         if (teamAtLocation.length <= 0) {
-                            teamEClocs.remove(loc);
+                            iter.remove();
                             if (!enemyEClocs.contains(loc)) {
                                 enemyEClocs.add(loc);
                             }
