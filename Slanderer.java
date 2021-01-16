@@ -11,12 +11,12 @@ public class Slanderer extends Unit {
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
-        for (RobotInfo bot : all){
+        for (RobotInfo bot : rc.senseNearbyRobots()){
             if (bot.type == RobotType.ENLIGHTENMENT_CENTER){
                 if (bot.team == enemy){
                     neareneloc = bot.location;
                 } else if (bot.team == Team.NEUTRAL){
-                    neutralECloc = bot.location;
+                    neutralEClocs.add(bot.location);
                 }
 
             }else if (bot.type == RobotType.MUCKRAKER) {
