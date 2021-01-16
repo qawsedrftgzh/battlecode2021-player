@@ -6,6 +6,7 @@ import java.util.Iterator;
 
 public class EnlightenmentCenter extends Robot {
     double bid = 1;
+    MapLocation neareneEC = null;
     int voteslastround=0, votesthisround=0;
     int capital; // current amount of influence
     int capital2; // capital of previous round
@@ -14,6 +15,11 @@ public class EnlightenmentCenter extends Robot {
 
     public EnlightenmentCenter(RobotController r) {
         super(r);
+        for (RobotInfo bot: r.senseNearbyRobots(RobotType.ENLIGHTENMENT_CENTER.sensorRadiusSquared,enemy)){
+            if (bot.type == RobotType.ENLIGHTENMENT_CENTER){
+                neareneEC = bot.location;
+            }
+        }
     }
 
     public void takeTurn() throws GameActionException {
@@ -28,6 +34,24 @@ public class EnlightenmentCenter extends Robot {
         updateFlag();
         if (rc.getEmpowerFactor(team,1) >= 10 && capital < 70000000){
             tryBuild(RobotType.POLITICIAN,null,capital/2);
+        }
+        if (neareneEC != null){
+            boolean buildsland = true;
+            RobotInfo arghmuck = null;
+            for (RobotInfo bot:rc.senseNearbyRobots(12,enemy)){
+                if (bot.type == RobotType.MUCKRAKER){
+                    buildsland = false;
+                    arghmuck = bot;
+                    break;
+                }
+            }
+            if (buildsland) {
+                tryBuild(RobotType.SLANDERER,null,(int) (capital*0.5));
+            }else if (rc.getRoundNum()%2==0) {
+                tryBuild(RobotType.POLITICIAN, null, (int) (capital*0.1));
+            } else {
+                tryBuild(RobotType.MUCKRAKER, null, (int) (capital*0.05));
+            }
         }
         if (rc.getRoundNum() <=2 || (capital <200 && capital>=30)){
             System.out.println("the first few rounds");
