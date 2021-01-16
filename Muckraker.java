@@ -16,7 +16,7 @@ public class Muckraker extends Unit {
     public void takeTurn() throws GameActionException {
         super.takeTurn();
         int disttoenhq = 20000000;
-        if (enemyEClocs.get(0) != null) {
+        if (enemyEClocs.size() > 0 && enemyEClocs.get(0) != null) {
             disttoenhq = rc.getLocation().distanceSquaredTo(enemyEClocs.get(0));
         }
         if (disttoenhq >= 5) {
