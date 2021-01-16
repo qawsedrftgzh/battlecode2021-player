@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class EnlightenmentCenter extends Robot {
-    double bid = 10;
+    double bid = 1;
     int voteslastround=0, votesthisround=0;
     int capital; // current amount of influence
     int capital2; // capital of previous round
@@ -31,31 +31,32 @@ public class EnlightenmentCenter extends Robot {
             }else if (round%4==1 || round%4==2){
                 tryBuild(RobotType.POLITICIAN, null, (int) (capital * 0.05));
             } else {
-                tryBuild(RobotType.SLANDERER, null, (int) (capital * 0.2));
+                tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence((int) (capital * 0.2)));
             }
         }
         if (rc.getRoundNum() <=2 || (rc.getRoundNum()>=200 && capital <200 && capital>=30)){
             System.out.println("the first few rounds");
-            tryBuild(RobotType.SLANDERER, null, capital);
+            tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital));
         }else if (rc.getRoundNum() % 4 == 0 && capital >= 200) {
-            tryBuild(RobotType.SLANDERER, null, capital/4); //trust me, this is a good amount
+            tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital/4)); //trust me, this is a good amount
         }else{
             tryBuild(RobotType.MUCKRAKER,null,1);
         }
         //bidding
         if (rc.getTeamVotes() <= 750) {
             votesthisround = rc.getTeamVotes();
-            if (votesthisround == voteslastround && bid < capital) {
-                bid = bid * 1.01;
+            if (votesthisround == voteslastround) {
+                    if(rc.canBid((int) bid * 2)) {
+                        bid = bid * 2;
+                    } else if (rc.canBid(rc.getInfluence() / 4)) {
+                        bid = rc.getInfluence() / 4;
+
+                    } else if (rc.canBid(1)) {
+                        bid = 1;
+                    }
             }
-            if (bid <= 0) {
-                bid = Util.getRandomNumberInRange(5, 15);
-            }
-            System.out.println("I will bid " + (int) bid);
             if (rc.canBid((int) bid)) {
-                rc.bid((int) bid);
-            } else {
-                bid = capital/4;
+                System.out.println("I will bid " + (int) bid);
                 rc.bid((int) bid);
             }
             voteslastround = votesthisround;
@@ -101,7 +102,7 @@ public class EnlightenmentCenter extends Robot {
 
     void updateFlag() throws GameActionException {
         if (enemyECloc != null && enemyECloc == rc.getLocation()) {
-            flags.sendLocationWithInfo(rc.getLocation(), InfoCodes.STOPATTACK);
+            flags.sendLocationWithInfo(rc.getLocation(), InfoCodes.TEAMEC);
             enemyECloc = null;
             return;
         }
@@ -118,20 +119,48 @@ public class EnlightenmentCenter extends Robot {
                 if (flag != 0) {
                     int info = flags.getInfoFromFlag(flag);
                     switch (info) {
-                        case(InfoCodes.STARTATTACK):
+                        case(InfoCodes.ENEMYEC):
                             if (rc.getFlag(rc.getID()) == 0) {
                                 enemyECloc = flags.getLocationFromFlag(flag);
-                                flags.sendLocationWithInfo(enemyECloc, InfoCodes.STARTATTACK);
+                                flags.sendLocationWithInfo(enemyECloc, InfoCodes.ENEMYEC);
                             }
-                        case(InfoCodes.STOPATTACK):
+                        case(InfoCodes.TEAMEC):
                             if (flags.getLocationFromFlag(flag) == enemyECloc) {
-                                flags.sendLocationWithInfo(enemyECloc, InfoCodes.STOPATTACK);
+                                flags.sendLocationWithInfo(enemyECloc, InfoCodes.TEAMEC);
                                 enemyECloc = null;
                             }
                     }
                 }
             }
         }
+    }
+
+    int calculateBestSlandererInfluence (int initialInfl) {
+        int nextStep = 0, currStep = 0;
+        double e = 2.71828182846;
+        int initalInflGain = (int) Math.floor(((double) 1/50 + 0.03 * Math.pow(e, (-0.001 * initialInfl))) * initialInfl);
+
+        int inflGain = 0;
+        for (int i = 0; inflGain <= initalInflGain; i++) {
+            inflGain = (int) Math.floor(((double) 1/50 + 0.03 * Math.pow(e, (-0.001 * (initialInfl + i)))) * (initialInfl + i));
+            System.out.println("\n initialInflGain: " + initalInflGain + "\n inflGain: " + inflGain);
+            nextStep = i;
+        }
+
+        inflGain = initalInflGain + 1;
+        for (int i = 0; inflGain >= initalInflGain; i--) {
+            System.out.println("wp 3");
+            inflGain = (int) Math.floor(((double) 1/50 + 0.03 * Math.pow(e, (-0.001 * (initialInfl + i)))) * (initialInfl + i));
+            System.out.println("\n initialInflGain: " + initalInflGain + "\n inflGain: " + inflGain);
+            currStep = i+1;
+        }
+
+        if (initialInfl + nextStep <= capital && nextStep < currStep) {
+            return initialInfl + nextStep;
+        } else if (initialInfl - currStep >= 21 && nextStep > currStep){
+            return initialInfl + currStep;
+        }
+        return initialInfl;
     }
 }
 
