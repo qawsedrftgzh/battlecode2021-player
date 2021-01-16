@@ -58,7 +58,7 @@ public class EnlightenmentCenter extends Robot {
             tryBuild(RobotType.SLANDERER, null, capital);
         }else if (rc.getRoundNum() % 3 == 0 && capital >= 50) {
             tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital/2)); //trust me, this is a good amount
-        }else if (rc.getRoundNum() % 3 == 2 && capital >= 50 && (neutralECloc != null || enemyECloc != null)){
+        }else if (rc.getRoundNum() % 3 == 2 && capital >= 50 && (neutralEClocs.size() != 0 || enemyEClocs.size() != 0)){
             tryBuild(RobotType.POLITICIAN,null, (int) (capital * 0.05));
         }else if (capital >= 50){
             tryBuild(RobotType.MUCKRAKER,null,(int) (capital * 0.05));
@@ -129,19 +129,19 @@ public class EnlightenmentCenter extends Robot {
     }
 
     void updateFlag() throws GameActionException {
-        if (neutralECloc != null && neutralECloc == rc.getLocation()) {
+        if (neutralEClocs.get(0) != null && neutralEClocs.get(0) == rc.getLocation()) {
             flags.sendLocationWithInfo(rc.getLocation(), InfoCodes.TEAMEC);
-            enemyECloc = null;
+            enemyEClocs.remove(0);
             return;
         }
-        if (enemyECloc != null && enemyECloc == rc.getLocation()) {
+        if (enemyEClocs.get(0) != null && enemyEClocs.get(0) == rc.getLocation()) {
             flags.sendLocationWithInfo(rc.getLocation(), InfoCodes.TEAMEC);
-            enemyECloc = null;
+            enemyEClocs.remove(0);
             return;
         }
         RobotInfo[] botsToCheck;
         if (activebots.size() == 0) {
-            botsToCheck = nearbyTeam;
+            botsToCheck = rc.senseNearbyRobots(type.sensorRadiusSquared);
         } else {
             botsToCheck = new RobotInfo[activebots.size()];
             botsToCheck = activebots.toArray(botsToCheck);
@@ -154,18 +154,18 @@ public class EnlightenmentCenter extends Robot {
                     switch (info) {
                         case(InfoCodes.NEUTRALEC):
                             if (rc.getFlag(rc.getID()) == 0) {
-                                neutralECloc = flags.getLocationFromFlag(flag);
-                                flags.sendLocationWithInfo(neutralECloc, InfoCodes.NEUTRALEC);
+                                neutralEClocs.set(0,flags.getLocationFromFlag(flag));
+                                flags.sendLocationWithInfo(neutralEClocs.get(0), InfoCodes.NEUTRALEC);
                             }
                         case(InfoCodes.ENEMYEC):
                             if (rc.getFlag(rc.getID()) == 0) {
-                                enemyECloc = flags.getLocationFromFlag(flag);
-                                flags.sendLocationWithInfo(enemyECloc, InfoCodes.ENEMYEC);
+                                enemyEClocs.set(0,flags.getLocationFromFlag(flag));
+                                flags.sendLocationWithInfo(enemyEClocs.get(0), InfoCodes.ENEMYEC);
                             }
                         case(InfoCodes.TEAMEC):
-                            if (flags.getLocationFromFlag(flag) == enemyECloc) {
-                                flags.sendLocationWithInfo(enemyECloc, InfoCodes.TEAMEC);
-                                enemyECloc = null;
+                            if (flags.getLocationFromFlag(flag) == enemyEClocs.get(0)) {
+                                flags.sendLocationWithInfo(enemyEClocs.get(0), InfoCodes.TEAMEC);
+                                enemyEClocs.remove(0);
                             }
                     }
                 }

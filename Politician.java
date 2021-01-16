@@ -1,9 +1,5 @@
 package battlecode2021;
 import battlecode.common.*;
-
-import java.util.Arrays;
-import java.util.Comparator;
-
 public class Politician extends Unit {
     boolean superpol = false; //if the plotician has more then 200 influence
     public Politician(RobotController r) {
@@ -13,17 +9,34 @@ public class Politician extends Unit {
     }
     public void takeTurn() throws  GameActionException{
         super.takeTurn();
-
-        if (neutralECloc != null) {
-            attack(neutralECloc, 2);
-        } else if (nearbyEnemys.length > 0) {
-            Arrays.sort(nearbyEnemys, Comparator.comparing(x -> myloc.distanceSquaredTo(x.location)));
-            for (RobotInfo bot : nearbyEnemys) {
-                if (bot.type != RobotType.SLANDERER && bot.type != RobotType.ENLIGHTENMENT_CENTER) {
-                    attack(bot.location, 2);
-                }
+        RobotInfo[] nearbyEnemys = rc.senseNearbyRobots(type.sensorRadiusSquared,enemy);
+        for (RobotInfo bot : rc.senseNearbyRobots()) {
+            if (bot.type == RobotType.ENLIGHTENMENT_CENTER && bot.team != team) {
+                enemyEClocs.add(bot.location);
             }
-        } else { nav.scout(); }
+        }
+        if (nearbyEnemys.length == 1){
+            RobotInfo bot = nearbyEnemys[0];
+            if (bot.location.distanceSquaredTo(rc.getLocation())<3){
+                rc.empower(2);
+            }else {
+                nav.navigate(bot.location, false);
+            }
+        }
+        if (neutralEClocs.size() != 0){
+            attack(enemyEClocs.get(0), 1);
+        }
+        if (enemyEClocs.size() != 0) {
+            System.out.println("I am attacking a enemy EC");
+            attack(enemyEClocs.get(0), 1);
+        }
+        if (nearbyEnemys.length > 0) {
+            tryEmpower(actionRadius);
+        }
+        if (!idleMovement()){
+            rc.empower(1);
+        }
+        nav.scout();
     }
 
 
@@ -34,11 +47,24 @@ public class Politician extends Unit {
         } return false;
     }
 
+    boolean idleMovement() throws GameActionException {
+        if (!rc.canMove(Util.randomDirection())) {
+            for (Direction dir : Util.directions) {
+                if (rc.canMove(dir)) {
+                    return true;
+                }
+            }
+        } else { return true; }
+        return false;
+    }
+
     void attack(MapLocation target, int maxDistanceSquared) throws GameActionException {
         if (target != null) {
             int distanceToTarget = rc.getLocation().distanceSquaredTo(target);
             if (distanceToTarget <= maxDistanceSquared) {
-                tryEmpower(distanceToTarget);
+                if (rc.isReady() && rc.canEmpower(distanceToTarget)) {
+                    rc.empower(distanceToTarget);
+                }
             } else {
                 nav.navigate(target, true);
             }
