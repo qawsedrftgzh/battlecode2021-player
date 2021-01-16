@@ -160,8 +160,18 @@ public class Unit extends Robot {
         }
         // --
 
-        // TODO send locations
+        // send location info
+        if (teamEClocs.size() > 0) {
+            teamEClocs.sort(Comparator.comparingInt(x -> myloc.distanceSquaredTo(x)));
+            flags.sendLocationWithInfo(teamEClocs.get(0), InfoCodes.TEAMEC);
 
+        } else if (neutralEClocs.size() > 0) {
+            neutralEClocs.sort(Comparator.comparingInt(x -> myloc.distanceSquaredTo(x)));
+            flags.sendLocationWithInfo(neutralEClocs.get(0), InfoCodes.NEUTRALEC);
 
+        } else if (enemyEClocs.size() > 0) {
+            enemyEClocs.sort(Comparator.comparingInt((x -> myloc.distanceSquaredTo(x))));
+            flags.sendLocationWithInfo(enemyEClocs.get(0), InfoCodes.ENEMYEC);
+        }
     }
 }
