@@ -65,7 +65,7 @@ public class Politician extends Unit {
                     rc.empower(distanceToTarget);
                 }
             } else {
-                nav.navigate(target);
+                nav.navigate(target, true);
             }
         }nav.scout();
     }
