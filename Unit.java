@@ -37,34 +37,39 @@ public class Unit extends Robot {
                 if (flag != 0) {
                     int info = flags.getInfoFromFlag(flag);
                     switch (info) {
-                        case(InfoCodes.STARTATTACK):
+                        case(InfoCodes.ENEMYEC):
                             if (rc.getFlag(rc.getID()) == 0) {
                                 enemyECloc = flags.getLocationFromFlag(flag);
-                                flags.sendLocationWithInfo(enemyECloc, InfoCodes.STARTATTACK);
+                                flags.sendLocationWithInfo(enemyECloc, InfoCodes.ENEMYEC);
                             }
-                        case(InfoCodes.STOPATTACK):
+                        case(InfoCodes.TEAMEC):
                             if (flags.getLocationFromFlag(flag) == enemyECloc) {
-                                flags.sendLocationWithInfo(enemyECloc, InfoCodes.STOPATTACK);
+                                flags.sendLocationWithInfo(enemyECloc, InfoCodes.TEAMEC);
                                 enemyECloc = null;
+                            }
+                        case(InfoCodes.NEUTRALEC):
+                            if (rc.getFlag(rc.getID()) == 0) {
+                                neutralECloc = flags.getLocationFromFlag(flag);
+                                flags.sendLocationWithInfo(neutralECloc, InfoCodes.NEUTRALEC);
                             }
                     }
                 }
             }
         }
         if (enemyECloc != null && rc.getFlag(rc.getID()) == 0) {
-            flags.sendLocationWithInfo(enemyECloc, InfoCodes.STARTATTACK);
+            flags.sendLocationWithInfo(enemyECloc, InfoCodes.ENEMYEC);
         }
         if (enemyECloc != null && rc.canSenseLocation(enemyECloc)) {
             RobotInfo[] enemyAtLocation = rc.senseNearbyRobots(enemyECloc, 0, enemy);
             if (enemyAtLocation.length != 0) {
                 if (enemyAtLocation[0].type != RobotType.ENLIGHTENMENT_CENTER) {
-                    flags.sendLocationWithInfo(enemyECloc, InfoCodes.STOPATTACK);
+                    flags.sendLocationWithInfo(enemyECloc, InfoCodes.TEAMEC);
                     enemyECloc = null;
                 }
             } else {
                 RobotInfo[] teamAtLocation = rc.senseNearbyRobots(enemyECloc, 0, team);
                 if (teamAtLocation.length != 0) {
-                    flags.sendLocationWithInfo(enemyECloc, InfoCodes.STOPATTACK);
+                    flags.sendLocationWithInfo(enemyECloc, InfoCodes.TEAMEC);
                     enemyECloc = null;
                 }
             }
@@ -75,7 +80,7 @@ public class Unit extends Robot {
                     if (!(nearbyTeam.length == 0)) {
                         enemyECloc = b.location;
                     }
-                    flags.sendLocationWithInfo(b.location, InfoCodes.STARTATTACK);
+                    flags.sendLocationWithInfo(b.location, InfoCodes.ENEMYEC);
                     break;
                 }
             }
@@ -86,7 +91,7 @@ public class Unit extends Robot {
                     if (!(nearbyTeam.length == 0)) {
                         neutralECloc = b.location;
                     }
-                    flags.sendLocationWithInfo(b.location, InfoCodes.STARTATTACK);
+                    flags.sendLocationWithInfo(b.location, InfoCodes.NEUTRALEC);
                     break;
                 }
             }
