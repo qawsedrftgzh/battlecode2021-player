@@ -100,12 +100,6 @@ public class EnlightenmentCenter extends Robot {
                     }
                 }
             }
-        }for (Direction d : Util.directions) {
-            if (rc.canBuildRobot(RobotType.SLANDERER, dir, capital)) {
-                rc.buildRobot(RobotType.SLANDERER, dir, capital);
-                activebots.add(rc.senseRobotAtLocation(rc.getLocation().add(dir)));
-                return true;
-            }
         }
         return false;
     }
@@ -182,7 +176,6 @@ public class EnlightenmentCenter extends Robot {
 
         inflGain = initalInflGain + 1;
         for (int i = 0; inflGain >= initalInflGain; i--) {
-            System.out.println("wp 3");
             inflGain = (int) Math.floor(((double) 1/50 + 0.03 * Math.pow(e, (-0.001 * (initialInfl + i)))) * (initialInfl + i));
             System.out.println("\n initialInflGain: " + initalInflGain + "\n inflGain: " + inflGain);
             currStep = i+1;
