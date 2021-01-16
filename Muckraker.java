@@ -53,7 +53,7 @@ public class Muckraker extends Unit {
             }
             int closest = 20000;
             RobotInfo closestbot = null;
-            for (RobotInfo bot : nearbyTeam) {
+            for (RobotInfo bot : rc.senseNearbyRobots(25,team)) {
                 if (bot.type == RobotType.MUCKRAKER && bot.location.distanceSquaredTo(myloc) <= closest) {
                     closest = bot.location.distanceSquaredTo(myloc);
                     closestbot = bot;

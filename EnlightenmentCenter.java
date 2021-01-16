@@ -20,27 +20,40 @@ public class EnlightenmentCenter extends Robot {
         super.takeTurn();
         capital = rc.getInfluence();
         income = capital - capital2;
+        int polimount = (int) (capital * 0.05);
+        if (polimount < 20){
+            polimount = 20;
+        }
         updateActiveBots();
         updateFlag();
         if (nearbyEnemys.length != 0){
-            tryBuild(RobotType.POLITICIAN, null, (int) (capital * 0.05));
-        }
-        if (enemyECloc != null) {
+            if (round % 3 == 0){
+                tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence((int) (capital * 0.2)));
+            } else {
+                tryBuild(RobotType.POLITICIAN, null, polimount);
+            }
+        } else if (enemyECloc != null || neutralECloc != null) {
             if (round%4==0){
-                tryBuild(RobotType.MUCKRAKER, null, 1);
+                tryBuild(RobotType.MUCKRAKER, null, 10);
             }else if (round%4==1 || round%4==2){
-                tryBuild(RobotType.POLITICIAN, null, (int) (capital * 0.05));
+                tryBuild(RobotType.POLITICIAN, null, polimount);
             } else {
                 tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence((int) (capital * 0.2)));
             }
-        }
-        if (rc.getRoundNum() <=2 || (rc.getRoundNum()>=200 && capital <200 && capital>=30)){
-            System.out.println("the first few rounds");
-            tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital));
-        }else if (rc.getRoundNum() % 4 == 0 && capital >= 200) {
-            tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital/4)); //trust me, this is a good amount
-        }else{
-            tryBuild(RobotType.MUCKRAKER,null,1);
+        } else {
+            if (rc.getRoundNum() <= 2 || (rc.getRoundNum() >= 200 && capital < 200 && capital >= 30)) {
+                System.out.println("the first few rounds");
+                tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital));
+            } else if (rc.getRoundNum() % 4 == 0 && capital >= 200) {
+                tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital / 4)); //trust me, this is a good amount
+            } else if (rc.getRoundNum() % 4 == 1 || rc.getRoundNum() % 4 == 3 || rc.getRoundNum() % 4 == 0) {
+                tryBuild(RobotType.MUCKRAKER, null, 1);
+            } else if (rc.getRoundNum() % 4 == 2){
+                tryBuild(RobotType.POLITICIAN, null, polimount);
+            } else {
+                System.out.println("Ok lol NOOO");
+                tryBuild(RobotType.SLANDERER,null,calculateBestSlandererInfluence(capital));
+            }
         }
         //bidding
         if (rc.getTeamVotes() <= 750) {
@@ -48,6 +61,9 @@ public class EnlightenmentCenter extends Robot {
             if (votesthisround == voteslastround) {
                     if(rc.canBid((int) bid * 2)) {
                         bid = bid * 2;
+                    } else if (rc.canBid( (int) (rc.getInfluence() * 1.1))) {
+                        bid = (int) rc.getInfluence() * 1.1;
+
                     } else if (rc.canBid(rc.getInfluence() / 4)) {
                         bid = rc.getInfluence() / 4;
 
@@ -84,7 +100,14 @@ public class EnlightenmentCenter extends Robot {
                     }
                 }
             }
-        } return false;
+        }for (Direction d : Util.directions) {
+            if (rc.canBuildRobot(RobotType.SLANDERER, dir, capital)) {
+                rc.buildRobot(RobotType.SLANDERER, dir, capital);
+                activebots.add(rc.senseRobotAtLocation(rc.getLocation().add(dir)));
+                return true;
+            }
+        }
+        return false;
     }
 
     void updateActiveBots() {
@@ -101,6 +124,11 @@ public class EnlightenmentCenter extends Robot {
     }
 
     void updateFlag() throws GameActionException {
+        if (neutralECloc != null && neutralECloc == rc.getLocation()) {
+            flags.sendLocationWithInfo(rc.getLocation(), InfoCodes.TEAMEC);
+            enemyECloc = null;
+            return;
+        }
         if (enemyECloc != null && enemyECloc == rc.getLocation()) {
             flags.sendLocationWithInfo(rc.getLocation(), InfoCodes.TEAMEC);
             enemyECloc = null;
@@ -119,6 +147,11 @@ public class EnlightenmentCenter extends Robot {
                 if (flag != 0) {
                     int info = flags.getInfoFromFlag(flag);
                     switch (info) {
+                        case(InfoCodes.NEUTRALEC):
+                            if (rc.getFlag(rc.getID()) == 0) {
+                                neutralECloc = flags.getLocationFromFlag(flag);
+                                flags.sendLocationWithInfo(neutralECloc, InfoCodes.NEUTRALEC);
+                            }
                         case(InfoCodes.ENEMYEC):
                             if (rc.getFlag(rc.getID()) == 0) {
                                 enemyECloc = flags.getLocationFromFlag(flag);

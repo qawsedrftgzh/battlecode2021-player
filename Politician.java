@@ -58,13 +58,15 @@ public class Politician extends Unit {
     }
 
     void attack(MapLocation target, int maxDistanceSquared) throws GameActionException {
-        int distanceToTarget = rc.getLocation().distanceSquaredTo(target);
-        if (distanceToTarget <= maxDistanceSquared) {
-            if (rc.isReady() && rc.canEmpower(distanceToTarget)) {
-                rc.empower(distanceToTarget);
+        if (target != null) {
+            int distanceToTarget = rc.getLocation().distanceSquaredTo(target);
+            if (distanceToTarget <= maxDistanceSquared) {
+                if (rc.isReady() && rc.canEmpower(distanceToTarget)) {
+                    rc.empower(distanceToTarget);
+                }
+            } else {
+                nav.navigate(target);
             }
-        } else {
-            nav.navigate(target);
-        }
+        }nav.scout();
     }
 }
