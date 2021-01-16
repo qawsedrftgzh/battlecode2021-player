@@ -26,37 +26,21 @@ public class EnlightenmentCenter extends Robot {
         }
         updateActiveBots();
         updateFlag();
-        if (nearbyEnemys.length != 0){
-            if (round % 3 == 0){
-                tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence((int) (capital * 0.2)));
-            } else {
-                tryBuild(RobotType.POLITICIAN, null, polimount);
-            }
-        } else if (enemyECloc != null || neutralECloc != null) {
-            if (round%4==0){
-                tryBuild(RobotType.MUCKRAKER, null, 10);
-            }else if (round%4==1 || round%4==2){
-                tryBuild(RobotType.POLITICIAN, null, polimount);
-            } else {
-                tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence((int) (capital * 0.2)));
-            }
-        } else {
-            if (rc.getRoundNum() <= 2 || (rc.getRoundNum() >= 200 && capital < 200 && capital >= 30)) {
-                System.out.println("the first few rounds");
-                tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital));
-            } else if (rc.getRoundNum() % 4 == 0 && capital >= 200) {
-                tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital / 4)); //trust me, this is a good amount
-            } else if (rc.getRoundNum() % 4 == 1 || rc.getRoundNum() % 4 == 3 || rc.getRoundNum() % 4 == 0) {
-                tryBuild(RobotType.MUCKRAKER, null, 1);
-            } else if (rc.getRoundNum() % 4 == 2){
-                tryBuild(RobotType.POLITICIAN, null, polimount);
-            } else {
-                System.out.println("Ok lol NOOO");
-                tryBuild(RobotType.SLANDERER,null,calculateBestSlandererInfluence(capital));
-            }
+        if (rc.getEmpowerFactor(team,1) >= 10 && capital < 70000000){
+            tryBuild(RobotType.POLITICIAN,null,capital/2);
+        }
+        if (rc.getRoundNum() <=2 || (capital <200 && capital>=30)){
+            System.out.println("the first few rounds");
+            tryBuild(RobotType.SLANDERER, null, capital);
+        }else if (rc.getRoundNum() % 3 == 0 && capital >= 50) {
+            tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital/2)); //trust me, this is a good amount
+        }else if (rc.getRoundNum() % 3 == 2 && capital >= 50 && (neutralECloc != null || enemyECloc != null)){
+            tryBuild(RobotType.POLITICIAN,null, (int) (capital * 0.05));
+        }else if (capital >= 50){
+            tryBuild(RobotType.MUCKRAKER,null,(int) (capital * 0.05));
         }
         //bidding
-        if (rc.getTeamVotes() <= 750) {
+        if (rc.getTeamVotes() <= 750 && capital > 30) {
             votesthisround = rc.getTeamVotes();
             if (votesthisround == voteslastround) {
                     if(rc.canBid((int) bid * 2)) {
@@ -70,7 +54,10 @@ public class EnlightenmentCenter extends Robot {
                     } else if (rc.canBid(1)) {
                         bid = 1;
                     }
+            } else {
+                bid = (int) bid * (0.99);
             }
+            bid = bid + 0 + (int)(Math.random() * 7);
             if (rc.canBid((int) bid)) {
                 System.out.println("I will bid " + (int) bid);
                 rc.bid((int) bid);
@@ -185,6 +172,9 @@ public class EnlightenmentCenter extends Robot {
             return initialInfl + nextStep;
         } else if (initialInfl - currStep >= 21 && nextStep > currStep){
             return initialInfl + currStep;
+        }
+        if (initialInfl <20){
+            initialInfl = 20;
         }
         return initialInfl;
     }
