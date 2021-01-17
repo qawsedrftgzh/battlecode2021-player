@@ -54,8 +54,8 @@ public class EnlightenmentCenter extends Robot {
             if (enemyEClocs.size() == 0 && neutralEClocs.size() == 0) {
                 if (buildsland && (int) (capital * 0.5) >= 30) {
                     tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence((int) (capital * 0.5)));
-                } else if (actualround % 3 == 0) {
-                    tryBuild(RobotType.SLANDERER, null, (int) (capital * 0.5));
+                } else if (actualround % 3 == 0 && buildsland) {
+                    tryBuild(RobotType.SLANDERER, null, 200);
                 } else if (actualround % 3 == 1) {
                     tryBuild(RobotType.POLITICIAN, null, polimount);
                 } else {
@@ -65,18 +65,15 @@ public class EnlightenmentCenter extends Robot {
                 tryBuild(RobotType.POLITICIAN,null,polimount);
             }
         }
-        if (actualround <=2 || (capital <200 && capital>=30)){
+        if (actualround <=2 || (capital <200 && capital>=30 && rc.getRoundNum() % 5 == 0)){
             System.out.println("the first few rounds");
             tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital));
-        }else if (actualround % 3 == 0 && capital >= 50) {
-
-            tryBuild(RobotType.SLANDERER, null, capital);
-        }else if (actualround % 3 == 1 && capital >= 50) {
-            tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital/2)); //trust me, this is a good amount
-        }else if (actualround % 3 == 2 && capital >= 50 && (neutralEClocs.size() != 0 || enemyEClocs.size() != 0)){
+        }else if (actualround % 3 == 0 && capital >= 200) {
+            tryBuild(RobotType.SLANDERER, null, 200);
+        }else if (actualround % 3 == 1 && capital >= 50 && (neutralEClocs.size() != 0 || enemyEClocs.size() != 0)){
             tryBuild(RobotType.POLITICIAN,null, (int) (capital * 0.05));
-        }else if (capital >= 50){
-            tryBuild(RobotType.MUCKRAKER,null,(int) (capital * 0.05));
+        }else {
+            tryBuild(RobotType.MUCKRAKER,null,1);
         }
         //bidding
         if (rc.getTeamVotes() <= 750 && capital > 30) {
