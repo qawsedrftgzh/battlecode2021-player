@@ -4,7 +4,7 @@ import battlecode.common.*;
 import java.util.*;
 
 public class Unit extends Robot {
-    ArrayList ECID = new ArrayList();
+    ArrayList<FlagsObj> ECID = new ArrayList<>();
     Navigation nav;
     MapLocation ECloc;
     MapLocation myloc;
@@ -20,9 +20,6 @@ public class Unit extends Robot {
         super.takeTurn();
         myloc = rc.getLocation();
         updateFlag2();
-        System.out.println("\nlocs : \n" + teamEClocs);
-        neutralEClocs.sort(Comparator.comparingInt(x -> myloc.distanceSquaredTo(x)));
-        enemyEClocs.sort(Comparator.comparingInt(x -> myloc.distanceSquaredTo(x)));
     }
 
     void getECInfo() {
@@ -30,9 +27,19 @@ public class Unit extends Robot {
         for (RobotInfo rb : nearbyRobots) {
             if (rb.type == RobotType.ENLIGHTENMENT_CENTER) {
                 teamEClocs.add(rb.location);
-                ECID.add(rb.ID);
+                ECID.add(new FlagsObj(rb, 0));
             }
         }
+    }
+
+    FlagsObj getNearestECID() {
+        if (ECID.size() > 1) {
+            ECID.sort(Comparator.comparing(x -> myloc.distanceSquaredTo(x.bot.location)));
+            return ECID.get(0);
+        } else if (ECID.size() == 1) {
+            return ECID.get(0);
+        }
+        return null;
     }
 
     void updateFlag() throws GameActionException {
@@ -79,7 +86,7 @@ public class Unit extends Robot {
         }
         // --
 
-        // check neutral EC locations
+        // check saved neutral EC locations
         if (neutralEClocs.size() > 0 || nearbyRobots.length > 0) {
             if (neutralEClocs.size() > 0) {
                 //neutralEClocs.sort(Comparator.comparingInt(x -> myloc.distanceSquaredTo(x))); // TODO check if it sorts right
@@ -115,7 +122,7 @@ public class Unit extends Robot {
         }
         // --
 
-        // check enemys EC locations
+        // check saved enemys EC locations
         else if (enemyEClocs.size() > 0 || nearbyRobots.length > 0) {
             if (enemyEClocs.size() > 0) {
                 enemyEClocs.sort(Comparator.comparingInt(x -> myloc.distanceSquaredTo(x))); // TODO check if it sorts right
@@ -142,7 +149,7 @@ public class Unit extends Robot {
         }
         // --
 
-        // check team EC locations
+        // check saved team EC locations
         else if (teamEClocs.size() > 0 || nearbyRobots.length > 0) {
             if (teamEClocs.size() > 0) {
                 teamEClocs.sort(Comparator.comparingInt(x -> -myloc.distanceSquaredTo(x)));
@@ -191,11 +198,13 @@ public class Unit extends Robot {
         }
 
         // receive and process information
-        if (ECID.size() > 0) {
-            int ID = (int) ECID.get(0);
+        FlagsObj nextECID = getNearestECID();
+        if (nextECID.bot.ID != 0) {
+            int ID = nextECID.bot.ID;
             if (rc.canGetFlag(ID)) {
                 int flag = rc.getFlag(ID);
-                if (flag != 0) {
+                if (flag != 0 && flag != nextECID.lastflag) {
+                    nextECID.lastflag = flag;
                     int info = flags.getInfoFromFlag(flag);
                     switch (info) {
                         case (InfoCodes.ENEMYEC): {
@@ -203,12 +212,19 @@ public class Unit extends Robot {
                             if (!enemyEClocs.contains(loc)) {
                                 enemyEClocs.add(loc);
                             }
+                            if (neutralEClocs.contains(loc)) {
+                                neutralEClocs.remove(loc);
+                            }
+                            if (teamEClocs.contains(loc)) {
+                                teamEClocs.remove(loc);
+                            }
                         }
                         case (InfoCodes.TEAMEC): {
                             MapLocation loc = flags.getLocationFromFlag(flag);
                             if (enemyEClocs.contains(loc)) {
                                 enemyEClocs.remove(loc);
-                            } else if (neutralEClocs.contains(loc)) {
+                            }
+                            if (neutralEClocs.contains(loc)) {
                                 neutralEClocs.remove(loc);
                             }
                             if (!teamEClocs.contains(loc)) {
@@ -234,26 +250,23 @@ public class Unit extends Robot {
 
             // check saved neutral EC location
             if (neutralEClocs.size() > 0) {
-                //neutralEClocs.sort(Comparator.comparingInt(x -> myloc.distanceSquaredTo(x))); // TODO check if it sorts right
-                //Arrays.sort(neutralEClocs, Comparator.comparingInt(x -> myloc.distanceSquaredTo(x)));
-                neutralEClocs.sort(Comparator.comparingInt(x -> myloc.distanceSquaredTo(x)));
                 for (Iterator<MapLocation> iter = neutralEClocs.iterator(); iter.hasNext(); ) {
                     MapLocation loc = iter.next();
-                    if (myloc.distanceSquaredTo(loc) > type.sensorRadiusSquared && rc.canSenseLocation(loc)) {
-                        RobotInfo[] neutralAtLocation = rc.senseNearbyRobots(loc, 0, Team.NEUTRAL);
-                        if (neutralAtLocation.length <= 0) {
-                            iter.remove();
-                            RobotInfo[] teamAtLocation = rc.senseNearbyRobots(loc, 0, team);
-                            if (teamAtLocation.length > 0) {
-                                if (!teamEClocs.contains(loc)) {
+                    if (myloc.distanceSquaredTo(loc) <= type.sensorRadiusSquared && rc.canSenseLocation(loc)) {
+                        RobotInfo botAtLocation = rc.senseRobotAtLocation(loc);
+                        if (botAtLocation != null && botAtLocation.type == RobotType.ENLIGHTENMENT_CENTER ) {
+                            if (botAtLocation.team != Team.NEUTRAL) {
+                                iter.remove();
+                                neutralECqu.remove(loc);
+                                if (botAtLocation.team == team && !teamEClocs.contains(loc)) {
                                     teamEClocs.add(loc);
-                                }
-                            } else {
-                                if (!enemyEClocs.contains(loc)) {
+                                    teamECqu.add(loc);
+                                } else if (botAtLocation.team == enemy && !enemyEClocs.contains(loc)) {
                                     enemyEClocs.add(loc);
+                                    enemyECqu.add(loc);
                                 }
                             }
-                        }
+                        } else { iter.remove(); }
                     }
                 }
             }
@@ -264,32 +277,44 @@ public class Unit extends Robot {
                 enemyEClocs.sort(Comparator.comparingInt(x -> myloc.distanceSquaredTo(x))); // TODO check if it sorts right
                 for (Iterator<MapLocation> iter = enemyEClocs.iterator(); iter.hasNext(); ) {
                     MapLocation loc = iter.next();
-                    if (rc.canSenseLocation(loc)) {
-                        RobotInfo[] enemyAtLocation = rc.senseNearbyRobots(loc, 0, enemy);
-                        if (enemyAtLocation.length <= 0) {
-                            iter.remove();
-                            if (!teamEClocs.contains(loc)) {
-                                teamEClocs.add(loc);
+                    if (myloc.distanceSquaredTo(loc) <= type.sensorRadiusSquared && rc.canSenseLocation(loc)) {
+                        RobotInfo botAtLocation = rc.senseRobotAtLocation(loc);
+                        if (botAtLocation != null && botAtLocation.type == RobotType.ENLIGHTENMENT_CENTER) {
+                            if (botAtLocation.team != enemy) {
+                                iter.remove();
+                                if (enemyECqu.contains(loc)) {
+                                    enemyECqu.remove(loc);
+                                }
+                                if (!teamEClocs.contains(loc)) {
+                                    teamEClocs.add(loc);
+                                    teamECqu.add(loc);
+                                }
                             }
-                        }
+                        } else { iter.remove(); }
                     }
                 }
             }
             // --
 
-            // check team EC locations
+            // check saved team EC locations
             else if (teamEClocs.size() > 0) {
                 teamEClocs.sort(Comparator.comparingInt(x -> -myloc.distanceSquaredTo(x)));
                 for (Iterator<MapLocation> iter = teamEClocs.iterator(); iter.hasNext(); ) {
                     MapLocation loc = iter.next();
-                    if (rc.canSenseLocation(loc)) {
-                        RobotInfo[] teamAtLocation = rc.senseNearbyRobots(loc, 0, team);
-                        if (teamAtLocation.length <= 0) {
-                            iter.remove();
-                            if (!enemyEClocs.contains(loc)) {
-                                enemyEClocs.add(loc);
+                    if (myloc.distanceSquaredTo(loc) <= type.sensorRadiusSquared && rc.canSenseLocation(loc)) {
+                        RobotInfo botAtLocation = rc.senseRobotAtLocation(loc);
+                        if (botAtLocation != null && botAtLocation.type == RobotType.ENLIGHTENMENT_CENTER) {
+                            if (botAtLocation.team != team) {
+                                iter.remove();
+                                if (teamECqu.contains(loc)) {
+                                    teamECqu.remove(loc);
+                                }
+                                if (!enemyEClocs.contains(loc)) {
+                                    enemyEClocs.add(loc);
+                                    enemyECqu.add(loc);
+                                }
                             }
-                        }
+                        } else { iter.remove(); }
                     }
                 }
             }
@@ -300,11 +325,28 @@ public class Unit extends Robot {
                 if (b.type == RobotType.ENLIGHTENMENT_CENTER) {
                     if (b.team == Team.NEUTRAL && !neutralEClocs.contains(b.location)) {
                         neutralEClocs.add(b.location);
+                        neutralECqu.add(b.location);
                     } else if (b.team == enemy && !enemyEClocs.contains(b.location)) {
                         enemyEClocs.add(b.location);
+                        enemyECqu.add(b.location);
                     } else if (b.team == team && !teamEClocs.contains(b.location)) {
                         teamEClocs.add(b.location);
+                        teamECqu.add(b.location);
                     }
+                }
+            }
+            // --
+
+            // sending locations
+            if (neutralECqu.size() > 0) {
+                flags.sendLocationWithInfo(neutralECqu.poll(), InfoCodes.NEUTRALEC);
+            } else if (teamECqu.size() > 0) {
+                flags.sendLocationWithInfo(teamECqu.poll(), InfoCodes.TEAMEC);
+            } else if (enemyECqu.size() > 0) {
+                flags.sendLocationWithInfo(enemyECqu.poll(), InfoCodes.ENEMYEC);
+            } else {
+                if (rc.canSetFlag(0)) {
+                    rc.setFlag(0);
                 }
             }
             // --
