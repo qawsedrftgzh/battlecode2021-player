@@ -57,7 +57,7 @@ public class Unit extends Robot {
 
         // receive and process information
         FlagsObj nextECID = getNearestECID();
-        if (nextECID.bot.ID != 0) {
+        if (nextECID != null && nextECID.bot.ID != 0) {
             int ID = nextECID.bot.ID;
             if (rc.canGetFlag(ID)) {
                 int flag = rc.getFlag(ID);
