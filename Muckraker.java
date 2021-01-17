@@ -7,59 +7,55 @@ public class Muckraker extends Unit {
     boolean explorer = false;
     public Muckraker(RobotController r) {
         super(r);
-        if (r.getRoundNum() <=  300){
+        if (r.getRoundNum() <=  20000){
             explorer = true;
         }
     }
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
-        int disttoenhq = 20000000;
-        if (enemyEClocs.size() > 0 && enemyEClocs.get(0) != null) {
+        int disttoenhq = 20000000; // distance to nearest enemy HQ(EC)
+        if (enemyEClocs.size() > 0) {
             disttoenhq = rc.getLocation().distanceSquaredTo(enemyEClocs.get(0));
         }
-        if (disttoenhq >= 5) {
-            if (ECloc.distanceSquaredTo(myloc) <= 50){ //kein muckspam am eigenen EC
-                nav.runaway(ECloc);
+
+        for (RobotInfo robot : attackable) {
+            if (robot.type.canBeExposed()) {
+                if (tryExpose(robot.ID)) {
+                    break;
+                }
             }
-            for (RobotInfo robot : attackable) {
-                if (robot.type.canBeExposed()) {
-                    // It's a slanderer... go get them!
-                    // nav.navigate(robot.location);
-                    if (rc.canExpose(robot.location)) {
-                        rc.expose(robot.location);
-                        break;
+        }
+
+        if (disttoenhq >= 5) {
+            if (teamEClocs.size() > 0 && myloc.distanceSquaredTo(teamEClocs.get(0)) <= 50) {
+                for (RobotInfo rbi : nearbyRobots) {
+                    if (rbi.location.distanceSquaredTo(teamEClocs.get(0)) < 100) {
+                        nav.navigate(rbi.location.add(rbi.location.directionTo(teamEClocs.get(0))), false);
                     }
                 }
-                break;
             }
-            RobotInfo[] enemybots = rc.senseNearbyRobots();
-            for (RobotInfo robot : enemybots) {
+            if (teamEClocs.get(0).distanceSquaredTo(myloc) <= 50){ //kein muckspam am eigenen EC
+                nav.runaway(ECloc);
+            }
+
+            for (RobotInfo robot : nearbyRobots) {
                 // It's a enemy... go get them!
-                if (robot.type.canBeExposed()) { //Dont follow muckrakers, to prevent muckracer running around theirselves
+                if (robot.team == enemy && robot.type.canBeExposed()) { //Dont follow muckrakers, to prevent muckracer running around theirselves
                     nav.navigate(robot.location, true);
                 }
                 break;
             }
-            for (RobotInfo robot : enemybots) {
-                if (robot.type == RobotType.ENLIGHTENMENT_CENTER && robot.team == enemy) {
-                    nav.navigate(robot.location, false);
-                    enemyEClocs.add(robot.location);
-                }
-            }
+
             if (enemyEClocs.size() != 0) {
                 System.out.println("I am attacking a enemy EC");
                 nav.navigate(enemyEClocs.get(0), false);
             }
-            if (rc.getLocation() == bornhere) {
-                if (!nav.tryMove(Util.randomDirection())) {
-                    for (Direction dir : Util.directions) {
-                        nav.tryMove(dir);
-                    }
-                }
+            if (myloc == bornhere) {
+                nav.scout();
             }
             if (!explorer) {
-                int closest = 20000;
+                int closest = Integer.MAX_VALUE;
                 RobotInfo closestbot = null;
                 for (RobotInfo bot : rc.senseNearbyRobots(25, team)) {
                     if (bot.type == RobotType.MUCKRAKER && bot.location.distanceSquaredTo(myloc) <= closest) {
@@ -78,8 +74,6 @@ public class Muckraker extends Unit {
             } else {
                 if (enemyEClocs.size() == 0) {
                     nav.scout();
-                } else if (teamEClocs.size() > 0) {
-                    nav.navigate(teamEClocs.get(0),true);
                 }
             }
         } else {
@@ -94,6 +88,14 @@ public class Muckraker extends Unit {
                 }
             }
         }
+    }
+
+    boolean tryExpose(int id) throws GameActionException {
+        if (rc.isReady() && rc.canExpose(id)) {
+            rc.expose(id);
+            return true;
+        }
+        return false;
     }
 }
 
