@@ -1,6 +1,9 @@
 package battlecode2021;
 import battlecode.common.*;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+
 
 public class Robot {
     RobotController rc;
@@ -11,6 +14,9 @@ public class Robot {
     ArrayList<MapLocation> enemyEClocs = new ArrayList<>();
     ArrayList<MapLocation> neutralEClocs = new ArrayList<>();
     ArrayList<MapLocation> teamEClocs = new ArrayList<>();
+    Queue<MapLocation> neutralECqu = new LinkedList<>();
+    Queue<MapLocation> enemyECqu = new LinkedList<>();
+    Queue<MapLocation> teamECqu = new LinkedList<>();
     MapLocation bornhere;
     RobotInfo[]  nearbyRobots, attackable;
     int actionRadius, sensorRadius, detectionRadius;
