@@ -38,7 +38,9 @@ public class Politician extends Unit {
                 System.out.println("I am attacking a enemy EC");
                 attack(enemyEClocs.get(0), 1, true);
             }
-            nav.orbit(teamEClocs.get(0),100,3);
+            else if (teamEClocs.size() != 0) {
+                nav.orbit(teamEClocs.get(0), 100, 3);
+            }
         }
     }
 
@@ -50,7 +52,7 @@ public class Politician extends Unit {
         } return false;
     }
 
-    boolean idleMovement() throws GameActionException {
+    boolean idleMovement(){
         if (!rc.canMove(Util.randomDirection())) {
             for (Direction dir : Util.directions) {
                 if (rc.canMove(dir)) {
@@ -60,12 +62,23 @@ public class Politician extends Unit {
         } else { return true; }
         return false;
     }
-
+    int highestempower(int rounds) {
+        double highestempowerfaktor = 0;
+        int thei = 0;
+        for (int i = 0;i <= rounds; i++){
+            double nowfakt = rc.getEmpowerFactor(team,i);
+            if (nowfakt > highestempowerfaktor) {
+                highestempowerfaktor = nowfakt;
+                thei = i;
+            }
+        }
+        return thei;
+    }
     void attack(MapLocation target, int maxDistanceSquared, boolean limitPassability) throws GameActionException {
         if (target != null) {
             int distanceToTarget = rc.getLocation().distanceSquaredTo(target);
             if (distanceToTarget <= maxDistanceSquared) {
-                tryEmpower(distanceToTarget);
+                    tryEmpower(distanceToTarget);
             } else {
                 nav.navigate(target, limitPassability);
             }
