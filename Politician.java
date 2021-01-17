@@ -18,13 +18,13 @@ public class Politician extends Unit {
         if (nearbyEnemys.length == 1){
             RobotInfo bot = nearbyEnemys[0];
             if (bot.location.distanceSquaredTo(rc.getLocation())<3){
-                rc.empower(2);
+                tryEmpower(2);
             }else {
                 nav.navigate(bot.location, false);
             }
         }
         if (neutralEClocs.size() != 0){
-            attack(enemyEClocs.get(0), 1);
+            attack(neutralEClocs.get(0), 1);
         }
         if (enemyEClocs.size() != 0) {
             System.out.println("I am attacking a enemy EC");
@@ -34,7 +34,7 @@ public class Politician extends Unit {
             tryEmpower(actionRadius);
         }
         if (!idleMovement()){
-            rc.empower(1);
+            tryEmpower(1);
         }
         nav.scout();
     }
