@@ -19,6 +19,9 @@ public class Muckraker extends Unit {
             disttoenhq = rc.getLocation().distanceSquaredTo(enemyEClocs.get(0));
         }
         if (disttoenhq >= 5) {
+            if (ECloc.distanceSquaredTo(myloc) <= 50){ //kein muckspam am eigenen EC
+                nav.runaway(ECloc);
+            }
             for (RobotInfo robot : attackable) {
                 if (robot.type.canBeExposed()) {
                     // It's a slanderer... go get them!
