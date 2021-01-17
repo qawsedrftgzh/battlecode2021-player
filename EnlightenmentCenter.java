@@ -41,6 +41,9 @@ public class EnlightenmentCenter extends Robot {
         if (rc.getEmpowerFactor(team,1) >= 10 && capital < 70000000){
             tryBuild(RobotType.POLITICIAN,null,capital/2);
         }
+        if (rc.senseNearbyRobots(type.sensorRadiusSquared,enemy).length != 0){
+            tryBuild(RobotType.POLITICIAN,null,20);
+        }
         if (neareneEC != null){
             boolean buildsland = true;
             RobotInfo arghmuck = null;
@@ -65,13 +68,13 @@ public class EnlightenmentCenter extends Robot {
                 tryBuild(RobotType.POLITICIAN,null,polimount);
             }
         }
-        if (actualround <=2 || (capital <200 && capital>=30 && rc.getRoundNum() % 5 == 0)){
+        if (actualround <=2 || (capital <50 && capital>=30 && rc.getRoundNum() % 5 == 0)){
             System.out.println("the first few rounds");
             tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital));
         }else if (actualround % 3 == 0 && capital >= 200) {
             tryBuild(RobotType.SLANDERER, null, 200);
-        }else if (actualround % 3 == 1 && capital >= 50 && (neutralEClocs.size() != 0 || enemyEClocs.size() != 0)){
-            tryBuild(RobotType.POLITICIAN,null, (int) (capital * 0.05));
+        }else if (actualround % 3 == 1 && capital >= 50){
+            tryBuild(RobotType.POLITICIAN,null, 30);
         }else {
             tryBuild(RobotType.MUCKRAKER,null,1);
         }
