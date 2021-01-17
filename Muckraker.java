@@ -76,8 +76,9 @@ public class Muckraker extends Unit {
             } else {
                 if (enemyEClocs.size() == 0) {
                     nav.scout();
-                } else {
-                    nav.navigate(ECloc,true);
+                } else if (teamEClocs.size() > 0) {
+                    // TODO: maybe sort it after distance before getting index 0
+                    nav.navigate(teamEClocs.get(0),true);
                 }
             }
         } else {
