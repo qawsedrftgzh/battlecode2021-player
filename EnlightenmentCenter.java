@@ -2,8 +2,8 @@ package battlecode2021;
 import battlecode.common.*;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Iterator;
+
 
 public class EnlightenmentCenter extends Robot {
     double bid = 1;
@@ -13,7 +13,8 @@ public class EnlightenmentCenter extends Robot {
     int capital2; // capital of previous round
     int income; // income per round (capital-capital2)
     MapLocation myloc;
-    ArrayList<RobotInfo> activebots = new ArrayList<>();
+    ArrayList<FlagsObj> activebots = new ArrayList<>(); // TODO: FlagsObj test
+    // ArrayList<RobotInfo> activebots = new ArrayList<>();
 
     public EnlightenmentCenter(RobotController r) {
         super(r);
@@ -33,8 +34,8 @@ public class EnlightenmentCenter extends Robot {
         if (polimount < 20){
             polimount = 20;
         }
-        updateActiveBots();
         updateFlag();
+        System.out.println("\nbytecode after updateFlag(" + activebots.size() +") : \n" + Clock.getBytecodeNum());
         if (rc.getEmpowerFactor(team,1) >= 10 && capital < 70000000){
             tryBuild(RobotType.POLITICIAN,null,capital/2);
         }
@@ -49,7 +50,7 @@ public class EnlightenmentCenter extends Robot {
                 }
             }
             if (buildsland && (int) (capital*0.5) >= 30) {
-                tryBuild(RobotType.SLANDERER,null,(int) (capital*0.5));
+                tryBuild(RobotType.SLANDERER,null,calculateBestSlandererInfluence((int) (capital*0.5)));
             }else if (rc.getRoundNum()%2==0) {
                 tryBuild(RobotType.POLITICIAN, null, (int) (capital*0.1));
             } else {
@@ -58,7 +59,7 @@ public class EnlightenmentCenter extends Robot {
         }
         if (rc.getRoundNum() <=2 || (capital <200 && capital>=30)){
             System.out.println("the first few rounds");
-            tryBuild(RobotType.SLANDERER, null, capital);
+            tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital));
         }else if (rc.getRoundNum() % 3 == 0 && capital >= 50) {
             tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital/2)); //trust me, this is a good amount
         }else if (rc.getRoundNum() % 3 == 2 && capital >= 50 && (neutralEClocs.size() != 0 || enemyEClocs.size() != 0)){
@@ -100,7 +101,10 @@ public class EnlightenmentCenter extends Robot {
             if (dir != null) {
                 if (rc.canBuildRobot(rt, dir, influence)) {
                     rc.buildRobot(rt, dir, influence);
-                    activebots.add(rc.senseRobotAtLocation(rc.getLocation().add(dir)));
+                    if (rt != RobotType.SLANDERER /**&& Math.random() <= 0.5**/) {
+                        // activebots.add(rc.senseRobotAtLocation(rc.getLocation().add(dir))
+                        activebots.add(new FlagsObj(rc.senseRobotAtLocation(rc.getLocation().add(dir)), 0));
+                    }
                     return true;
                 } else {
                     return false;
@@ -109,26 +113,16 @@ public class EnlightenmentCenter extends Robot {
                 for (Direction d : Util.directions) {
                     if (rc.canBuildRobot(rt, d, influence)) {
                         rc.buildRobot(rt, d, influence);
-                        activebots.add(rc.senseRobotAtLocation(rc.getLocation().add(d)));
+                        if (rt != RobotType.SLANDERER /**&& Math.random() <= 0.5**/) {
+                            // activebots.add(rc.senseRobotAtLocation(rc.getLocation().add(d)));
+                            activebots.add(new FlagsObj(rc.senseRobotAtLocation(rc.getLocation().add(d)), 0));
+                        }
                         return true;
                     }
                 }
             }
         }
         return false;
-    }
-
-    void updateActiveBots() {
-        if (activebots.size() != 0) {
-            for (Iterator<RobotInfo> iter = activebots.iterator(); iter.hasNext(); ) {
-                RobotInfo info = iter.next();
-                if (!rc.canSenseRobot(info.ID)) {
-                    iter.remove();
-                } else if (info.team == enemy) {
-                    iter.remove();
-                }
-            }
-        }
     }
 
     void updateFlag() throws GameActionException {
@@ -138,132 +132,48 @@ public class EnlightenmentCenter extends Robot {
         }
 
         // receive and process information
-        for (RobotInfo b : nearbyRobots) {
-            if (b.team == team) {
-                if (rc.canGetFlag(b.ID)) {
-                    int flag = rc.getFlag(b.ID);
-                    if (flag != 0) {
-                        int info = flags.getInfoFromFlag(flag);
-                        switch (info) {
-                            case (InfoCodes.ENEMYEC): {
-                                MapLocation loc = flags.getLocationFromFlag(flag);
-                                if (!enemyEClocs.contains(loc)) {
-                                    enemyEClocs.add(loc);
-                                }
-                            }
-                            case (InfoCodes.TEAMEC): {
-                                MapLocation loc = flags.getLocationFromFlag(flag);
-                                if (enemyEClocs.contains(loc)) {
-                                    enemyEClocs.remove(loc);
-                                } else if (neutralEClocs.contains(loc)) {
-                                    neutralEClocs.remove(loc);
-                                }
-                                if (!teamEClocs.contains(loc)) {
-                                    teamEClocs.remove(loc);
-                                }
-                            }
-                            case (InfoCodes.NEUTRALEC): {
-                                MapLocation loc = flags.getLocationFromFlag(flag);
-                                if (!neutralEClocs.contains(loc)) {
-                                    neutralEClocs.add(loc);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        // --
-
-        // update neutral EC locations
-        if (neutralEClocs.size() > 0 || nearbyRobots.length > 0) {
-            if (neutralEClocs.size() > 0) {
-                neutralEClocs.sort(Comparator.comparingInt(x -> myloc.distanceSquaredTo(x))); // TODO check if it sorts right
-                for (Iterator<MapLocation> iter = neutralEClocs.iterator(); iter.hasNext();) {
-                    MapLocation loc = iter.next();
-                    if (rc.canSenseLocation(loc)) {
-                        RobotInfo[] neutralAtLocation = rc.senseNearbyRobots(loc, 0, Team.NEUTRAL);
-                        if (neutralAtLocation.length <= 0) {
-                            iter.remove();
-                            RobotInfo[] teamAtLocation = rc.senseNearbyRobots(loc, 0, team);
-                            if (teamAtLocation.length > 0) {
-                                if (!teamEClocs.contains(loc)) {
-                                    teamEClocs.add(loc);
-                                }
-                            } else {
-                                if (!enemyEClocs.contains(loc)) {
-                                    enemyEClocs.add(loc);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            if (nearbyRobots.length > 0) {
-                for (RobotInfo b : nearbyRobots) {
-                    if (b.type == RobotType.ENLIGHTENMENT_CENTER && b.team == Team.NEUTRAL && !neutralEClocs.contains(b.location)) {
-                        neutralEClocs.add(b.location);
-                    }
-                }
-            }
-        }
-        // --
-
-        // update enemys EC locations
-        else if (enemyEClocs.size() > 0 || nearbyRobots.length > 0) {
-            if (enemyEClocs.size() > 0) {
-                enemyEClocs.sort(Comparator.comparingInt(x -> myloc.distanceSquaredTo(x))); // TODO check if it sorts right
-                for (Iterator<MapLocation> iter = enemyEClocs.iterator(); iter.hasNext();) {
-                    MapLocation loc = iter.next();
-                    if (rc.canSenseLocation(loc)) {
-                        RobotInfo[] enemyAtLocation = rc.senseNearbyRobots(loc, 0, enemy);
-                        if (enemyAtLocation.length <= 0) {
-                            iter.remove();
-                            if (!teamEClocs.contains(loc)) {
-                                teamEClocs.add(loc);
-                            }
-                        }
-                    }
-                }
-            }
-            if (nearbyRobots.length > 0) {
-                for (RobotInfo b : nearbyRobots) {
-                    if (b.type == RobotType.ENLIGHTENMENT_CENTER && b.team == enemy && !enemyEClocs.contains(b.location)) {
-                        enemyEClocs.add(b.location);
-                    }
-                }
-            }
-        }
-        // --
-
-        // update team EC locations
-        else if (teamEClocs.size() > 0 || nearbyRobots.length > 0) {
-            if (teamEClocs.size() > 0) {
-                for (Iterator<MapLocation> iter = teamEClocs.iterator(); iter.hasNext();) {
-                    MapLocation loc = iter.next();
-                    if (rc.canSenseLocation(loc)) {
-                        RobotInfo[] teamAtLocation = rc.senseNearbyRobots(loc, 0, team);
-                        if (teamAtLocation.length <= 0) {
-                            iter.remove();
+        // for (Iterator<RobotInfo> iter = activebots.iterator(); iter.hasNext();) {
+        for (Iterator<FlagsObj> iter = activebots.iterator(); iter.hasNext();) { // TODO: FlagsObj test
+            // RobotInfo b = iter.next();
+            FlagsObj b = iter.next(); // TODO: FlagsObj test
+            if (rc.canGetFlag(b.bot.ID)) {
+                int flag = rc.getFlag(b.bot.ID);
+                if (flag != 0 && flag != b.lastflag) {
+                    b.lastflag = flag;
+                    int info = flags.getInfoFromFlag(flag);
+                    switch (info) {
+                        case (InfoCodes.ENEMYEC): {
+                            MapLocation loc = flags.getLocationFromFlag(flag);
                             if (!enemyEClocs.contains(loc)) {
                                 enemyEClocs.add(loc);
                             }
                         }
+                        case (InfoCodes.TEAMEC): {
+                            MapLocation loc = flags.getLocationFromFlag(flag);
+                            if (enemyEClocs.contains(loc)) {
+                                enemyEClocs.remove(loc);
+                            } else if (neutralEClocs.contains(loc)) {
+                                neutralEClocs.remove(loc);
+                            }
+                            if (!teamEClocs.contains(loc)) {
+                                teamEClocs.remove(loc);
+                            }
+                        }
+                        case (InfoCodes.NEUTRALEC): {
+                            MapLocation loc = flags.getLocationFromFlag(flag);
+                            if (!neutralEClocs.contains(loc)) {
+                                neutralEClocs.add(loc);
+                            }
+                        }
                     }
                 }
-            }
-            if (nearbyRobots.length > 0) {
-                for (RobotInfo b : nearbyRobots) {
-                    if (b.type == RobotType.ENLIGHTENMENT_CENTER && b.team == team && !teamEClocs.contains(b.location)) {
-                        teamEClocs.add(b.location);
-                    }
-                }
-            }
+            } else {iter.remove();}
         }
         // --
     }
 
     int calculateBestSlandererInfluence (int initialInfl) {
+        int bc1 = Clock.getBytecodeNum();
         int nextStep = 0, currStep = 0;
         double e = 2.71828182846;
         int initalInflGain = (int) Math.floor(((double) 1/50 + 0.03 * Math.pow(e, (-0.001 * initialInfl))) * initialInfl);
@@ -271,24 +181,23 @@ public class EnlightenmentCenter extends Robot {
         int inflGain = 0;
         for (int i = 0; inflGain <= initalInflGain; i++) {
             inflGain = (int) Math.floor(((double) 1/50 + 0.03 * Math.pow(e, (-0.001 * (initialInfl + i)))) * (initialInfl + i));
-            System.out.println("\n initialInflGain: " + initalInflGain + "\n inflGain: " + inflGain);
             nextStep = i;
         }
 
         inflGain = initalInflGain + 1;
         for (int i = 0; inflGain >= initalInflGain; i--) {
             inflGain = (int) Math.floor(((double) 1/50 + 0.03 * Math.pow(e, (-0.001 * (initialInfl + i)))) * (initialInfl + i));
-            System.out.println("\n initialInflGain: " + initalInflGain + "\n inflGain: " + inflGain);
             currStep = i+1;
         }
-
+        int BCcost = Clock.getBytecodeNum() - bc1;
+        System.out.println("\n BC cost of cBSI(): \n" + BCcost);
         if (initialInfl + nextStep <= capital && nextStep < currStep) {
             return initialInfl + nextStep;
         } else if (initialInfl - currStep >= 21 && nextStep > currStep){
             return initialInfl + currStep;
         }
         if (initialInfl <20){
-            initialInfl = 20;
+            initialInfl = 21;
         }
         return initialInfl;
     }
