@@ -13,9 +13,6 @@ public class Robot {
     ArrayList<MapLocation> enemyEClocs = new ArrayList<>();
     ArrayList<MapLocation> neutralEClocs = new ArrayList<>();
     ArrayList<MapLocation> teamEClocs = new ArrayList<>();
-    // ArrayList<RobotInfo> enemyEClocs = new ArrayList<>();
-    // ArrayList<RobotInfo> neutralEClocs = new ArrayList<>();
-    // ArrayList<RobotInfo> teamEClocs = new ArrayList<>();
     Queue<RobotInfo> flagsQu = new LinkedList<>();
     Queue<MapLocation> neutralECqu = new LinkedList<>();
     Queue<MapLocation> enemyECqu = new LinkedList<>();
@@ -45,12 +42,5 @@ public class Robot {
         // TODO \/ rewrite if there are bytecode problems
         nearbyRobots = rc.senseNearbyRobots(sensorRadius);
         attackable = rc.senseNearbyRobots(actionRadius, enemy);
-    }
-
-    MapLocation getNearestLocation(List<MapLocation> list) {
-        if (list.size() > 0) {
-            list.sort(Comparator.comparingInt(x -> rc.getLocation().distanceSquaredTo(x)));
-            return list.get(0);
-        } return null;
     }
 }
