@@ -20,11 +20,11 @@ public class Politician extends Unit {
             attack(bot.location, 2, false);
         }
         if (neutralEClocs.size() != 0){
-            attack(getNearestLocation(neutralEClocs), 1, true);
+            attack(neutralEClocs.get(0), 1, true);
         }
         if (enemyEClocs.size() != 0) {
             System.out.println("I am attacking a enemy EC");
-            attack(getNearestLocation(enemyEClocs), 1, true);
+            attack(enemyEClocs.get(0), 1, true);
         }
         if (nearbyEnemys.length > 0) {
             tryEmpower(actionRadius);
