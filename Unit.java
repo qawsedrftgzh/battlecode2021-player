@@ -21,7 +21,8 @@ public class Unit extends Robot {
         myloc = rc.getLocation();
         updateFlag2();
         System.out.println("\nlocs : \n" + teamEClocs);
-
+        neutralEClocs.sort(Comparator.comparingInt(x -> myloc.distanceSquaredTo(x)));
+        enemyEClocs.sort(Comparator.comparingInt(x -> myloc.distanceSquaredTo(x)));
     }
 
     void getECInfo() {

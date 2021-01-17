@@ -51,14 +51,18 @@ public class EnlightenmentCenter extends Robot {
                     break;
                 }
             }
-            if (buildsland && (int) (capital*0.5) >= 30) {
-                tryBuild(RobotType.SLANDERER,null,calculateBestSlandererInfluence((int) (capital*0.5)));
-            }else if (actualround%2==0) {
-                tryBuild(RobotType.SLANDERER,null,(int) (capital*0.5));
-            }else if (actualround%2==0) {
-                tryBuild(RobotType.POLITICIAN, null, (int) (capital*0.1));
-            } else {
-                tryBuild(RobotType.MUCKRAKER, null, (int) (capital*0.05));
+            if (enemyEClocs.size() == 0 && neutralEClocs.size() == 0) {
+                if (buildsland && (int) (capital * 0.5) >= 30) {
+                    tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence((int) (capital * 0.5)));
+                } else if (actualround % 3 == 0) {
+                    tryBuild(RobotType.SLANDERER, null, (int) (capital * 0.5));
+                } else if (actualround % 3 == 1) {
+                    tryBuild(RobotType.POLITICIAN, null, polimount);
+                } else {
+                    tryBuild(RobotType.MUCKRAKER, null, (int) (capital * 0.05));
+                }
+            }else if (arghmuck != null){
+                tryBuild(RobotType.POLITICIAN,null,polimount);
             }
         }
         if (actualround <=2 || (capital <200 && capital>=30)){
@@ -67,7 +71,7 @@ public class EnlightenmentCenter extends Robot {
         }else if (actualround % 3 == 0 && capital >= 50) {
 
             tryBuild(RobotType.SLANDERER, null, capital);
-        }else if (actualround % 3 == 0 && capital >= 50) {
+        }else if (actualround % 3 == 1 && capital >= 50) {
             tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital/2)); //trust me, this is a good amount
         }else if (actualround % 3 == 2 && capital >= 50 && (neutralEClocs.size() != 0 || enemyEClocs.size() != 0)){
             tryBuild(RobotType.POLITICIAN,null, (int) (capital * 0.05));
@@ -84,24 +88,24 @@ public class EnlightenmentCenter extends Robot {
                     bid = (int) (rc.getInfluence() * 1.1);
 
                 } else if (rc.canBid(rc.getInfluence() / 4)) {
-                    bid = rc.getInfluence() / 4;
+                    bid = rc.getInfluence() * 0.25;
 
                 } else if (rc.canBid(1)) {
                     bid = 1;
                 }
-                if (actualround <= 250 && bid > capital / 4) {
-                    bid = (int) (capital / 4);
-                } else if (actualround >= 250 && actualround <= 750 && bid > capital / 2) {
-                    bid = (int) (capital / 2);
+                if (actualround <= 250 && bid > capital * 0.25) {
+                    bid = capital * 0.25;
+                } else if (actualround >= 250 && actualround <= 750 && bid > capital * 0.5) {
+                    bid = capital * 0.5;
                 } else if (actualround >= 250 && actualround <= 750 && bid > capital * 0.75) {
-                    bid = (int) (capital / 2);
+                    bid = capital * 0.75;
                 }
-                if (actualround <= 250 && bid > capital / 4) {
-                    bid = (int) (capital / 4);
-                } else if (actualround >= 250 && actualround <= 750 && bid > capital / 2) {
-                    bid = (int) (capital / 2);
+                if (actualround <= 250 && bid > capital * 0.25) {
+                    bid = capital * 0.25;
+                } else if (actualround >= 250 && actualround <= 750 && bid > capital * 0.5) {
+                    bid = capital * 0.5;
                 } else if (actualround >= 250 && actualround <= 750 && bid > capital * 0.75) {
-                    bid = (int) (capital / 2);
+                    bid = capital * 0.75;
                 }
             } else {
                 bid = (int) bid * (0.99);
@@ -122,8 +126,7 @@ public class EnlightenmentCenter extends Robot {
             if (dir != null) {
                 if (rc.canBuildRobot(rt, dir, influence)) {
                     rc.buildRobot(rt, dir, influence);
-                    if (rt != RobotType.SLANDERER /**&& Math.random() <= 0.5**/) {
-                        // activebots.add(rc.senseRobotAtLocation(rc.getLocation().add(dir))
+                    if (rt != RobotType.SLANDERER) {
                         activebots.add(new FlagsObj(rc.senseRobotAtLocation(rc.getLocation().add(dir)), 0));
                     }
                     return true;
@@ -134,8 +137,7 @@ public class EnlightenmentCenter extends Robot {
                 for (Direction d : Util.directions) {
                     if (rc.canBuildRobot(rt, d, influence)) {
                         rc.buildRobot(rt, d, influence);
-                        if (rt != RobotType.SLANDERER /**&& Math.random() <= 0.5**/) {
-                            // activebots.add(rc.senseRobotAtLocation(rc.getLocation().add(d)));
+                        if (rt != RobotType.SLANDERER) {
                             activebots.add(new FlagsObj(rc.senseRobotAtLocation(rc.getLocation().add(d)), 0));
                         }
                         return true;

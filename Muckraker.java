@@ -4,7 +4,6 @@ import battlecode.common.*;
 import java.util.Random;
 
 public class Muckraker extends Unit {
-    boolean free = false; //wenn ein muckraker ausserhalb des verteidigungsringes ist
     boolean explorer = false;
     public Muckraker(RobotController r) {
         super(r);
@@ -40,7 +39,7 @@ public class Muckraker extends Unit {
                 break;
             }
             for (RobotInfo robot : enemybots) {
-                if (robot.type == RobotType.ENLIGHTENMENT_CENTER) {
+                if (robot.type == RobotType.ENLIGHTENMENT_CENTER && robot.team == enemy) {
                     nav.navigate(robot.location, false);
                     enemyEClocs.add(robot.location);
                 }
@@ -77,7 +76,6 @@ public class Muckraker extends Unit {
                 if (enemyEClocs.size() == 0) {
                     nav.scout();
                 } else if (teamEClocs.size() > 0) {
-                    // TODO: maybe sort it after distance before getting index 0
                     nav.navigate(teamEClocs.get(0),true);
                 }
             }
