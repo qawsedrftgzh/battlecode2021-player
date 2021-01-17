@@ -12,6 +12,7 @@ public class EnlightenmentCenter extends Robot {
     int capital; // current amount of influence
     int capital2; // capital of previous round
     int income; // income per round (capital-capital2)
+    int actualround, polimount;
     MapLocation myloc;
     ArrayList<FlagsObj> activebots = new ArrayList<>(); // TODO: FlagsObj test
     // ArrayList<RobotInfo> activebots = new ArrayList<>();
@@ -30,7 +31,8 @@ public class EnlightenmentCenter extends Robot {
         super.takeTurn();
         capital = rc.getInfluence();
         income = capital - capital2;
-        int polimount = (int) (capital * 0.05);
+        actualround = rc.getRoundNum();
+        polimount = (int) (capital * 0.05);
         if (polimount < 20){
             polimount = 20;
         }
@@ -51,18 +53,23 @@ public class EnlightenmentCenter extends Robot {
             }
             if (buildsland && (int) (capital*0.5) >= 30) {
                 tryBuild(RobotType.SLANDERER,null,calculateBestSlandererInfluence((int) (capital*0.5)));
-            }else if (rc.getRoundNum()%2==0) {
+            }else if (actualround%2==0) {
+                tryBuild(RobotType.SLANDERER,null,(int) (capital*0.5));
+            }else if (actualround%2==0) {
                 tryBuild(RobotType.POLITICIAN, null, (int) (capital*0.1));
             } else {
                 tryBuild(RobotType.MUCKRAKER, null, (int) (capital*0.05));
             }
         }
-        if (rc.getRoundNum() <=2 || (capital <200 && capital>=30)){
+        if (actualround <=2 || (capital <200 && capital>=30)){
             System.out.println("the first few rounds");
             tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital));
-        }else if (rc.getRoundNum() % 3 == 0 && capital >= 50) {
+        }else if (actualround % 3 == 0 && capital >= 50) {
+
+            tryBuild(RobotType.SLANDERER, null, capital);
+        }else if (actualround % 3 == 0 && capital >= 50) {
             tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital/2)); //trust me, this is a good amount
-        }else if (rc.getRoundNum() % 3 == 2 && capital >= 50 && (neutralEClocs.size() != 0 || enemyEClocs.size() != 0)){
+        }else if (actualround % 3 == 2 && capital >= 50 && (neutralEClocs.size() != 0 || enemyEClocs.size() != 0)){
             tryBuild(RobotType.POLITICIAN,null, (int) (capital * 0.05));
         }else if (capital >= 50){
             tryBuild(RobotType.MUCKRAKER,null,(int) (capital * 0.05));
@@ -71,21 +78,35 @@ public class EnlightenmentCenter extends Robot {
         if (rc.getTeamVotes() <= 750 && capital > 30) {
             votesthisround = rc.getTeamVotes();
             if (votesthisround == voteslastround) {
-                    if(rc.canBid((int) bid * 2)) {
-                        bid = bid * 2;
-                    } else if (rc.canBid( (int) (rc.getInfluence() * 1.1))) {
-                        bid = (int) (rc.getInfluence() * 1.1);
+                if (rc.canBid((int) bid * 2)) {
+                    bid = bid * 2;
+                } else if (rc.canBid((int) (rc.getInfluence() * 1.1))) {
+                    bid = (int) (rc.getInfluence() * 1.1);
 
-                    } else if (rc.canBid(rc.getInfluence() / 4)) {
-                        bid = rc.getInfluence() / 4;
+                } else if (rc.canBid(rc.getInfluence() / 4)) {
+                    bid = rc.getInfluence() / 4;
 
-                    } else if (rc.canBid(1)) {
-                        bid = 1;
-                    }
+                } else if (rc.canBid(1)) {
+                    bid = 1;
+                }
+                if (actualround <= 250 && bid > capital / 4) {
+                    bid = (int) (capital / 4);
+                } else if (actualround >= 250 && actualround <= 750 && bid > capital / 2) {
+                    bid = (int) (capital / 2);
+                } else if (actualround >= 250 && actualround <= 750 && bid > capital * 0.75) {
+                    bid = (int) (capital / 2);
+                }
+                if (actualround <= 250 && bid > capital / 4) {
+                    bid = (int) (capital / 4);
+                } else if (actualround >= 250 && actualround <= 750 && bid > capital / 2) {
+                    bid = (int) (capital / 2);
+                } else if (actualround >= 250 && actualround <= 750 && bid > capital * 0.75) {
+                    bid = (int) (capital / 2);
+                }
             } else {
                 bid = (int) bid * (0.99);
             }
-            bid = bid + 0 + (int)(Math.random() * 7);
+            bid = bid + 0 + (int) (Math.random() * 7);
             if (rc.canBid((int) bid)) {
                 System.out.println("I will bid " + (int) bid);
                 rc.bid((int) bid);
