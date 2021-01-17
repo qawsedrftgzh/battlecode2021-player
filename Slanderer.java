@@ -32,7 +32,9 @@ public class Slanderer extends Unit {
             }
         }
         if (muckloc == null) {
-            nav.orbit(ECloc, 200, 5);
+            if (teamEClocs.size() > 0) {
+                nav.orbit(teamEClocs.get(0), 200, 5);
+            }
         }
         else{
             if (rc.getLocation().distanceSquaredTo(muckloc) >= 30) {
