@@ -65,18 +65,22 @@ public class EnlightenmentCenter extends Robot {
                 tryBuild(RobotType.POLITICIAN,null,polimount);
             }
         }
+        if (neutralEClocs.size() > 0) {
+            if (tryBuild(RobotType.POLITICIAN, myloc.directionTo(getNearestLocation(neutralEClocs)), income * income + 10)) {
+                flagsQu.add(new RobotInfo(0, Team.NEUTRAL, RobotType.ENLIGHTENMENT_CENTER, 0, 0, getNearestLocation(neutralEClocs)));
+            }
+        }
         if (actualround <=2 || (capital <200 && capital>=30)){
             System.out.println("the first few rounds");
             tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital));
         }else if (actualround % 3 == 0 && capital >= 50) {
-
-            tryBuild(RobotType.SLANDERER, null, capital);
+            tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital));
         }else if (actualround % 3 == 1 && capital >= 50) {
             tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital/2)); //trust me, this is a good amount
         }else if (actualround % 3 == 2 && capital >= 50 && (neutralEClocs.size() != 0 || enemyEClocs.size() != 0)){
-            tryBuild(RobotType.POLITICIAN,null, (int) (capital * 0.05));
+            tryBuild(RobotType.POLITICIAN,null, (int) (capital * 0.05 + 10));
         }else if (capital >= 50){
-            tryBuild(RobotType.MUCKRAKER,null,(int) (capital * 0.05));
+            tryBuild(RobotType.MUCKRAKER,null, 1);
         }
         //bidding
         if (rc.getTeamVotes() <= 750 && capital > 30) {
@@ -95,22 +99,14 @@ public class EnlightenmentCenter extends Robot {
                 }
                 if (actualround <= 250 && bid > capital * 0.25) {
                     bid = capital * 0.25;
-                } else if (actualround >= 250 && actualround <= 750 && bid > capital * 0.5) {
+                } else if (actualround > 250 && actualround <= 750 && bid > capital * 0.5) {
                     bid = capital * 0.5;
-                } else if (actualround >= 250 && actualround <= 750 && bid > capital * 0.75) {
-                    bid = capital * 0.75;
-                }
-                if (actualround <= 250 && bid > capital * 0.25) {
-                    bid = capital * 0.25;
-                } else if (actualround >= 250 && actualround <= 750 && bid > capital * 0.5) {
-                    bid = capital * 0.5;
-                } else if (actualround >= 250 && actualround <= 750 && bid > capital * 0.75) {
+                } else if (actualround >= 750 && actualround <= 750 && bid > capital * 0.75) {
                     bid = capital * 0.75;
                 }
             } else {
-                bid = (int) bid * (0.99);
+                bid = (int) (bid * 0.95);
             }
-            bid = bid + 0 + (int) (Math.random() * 7);
             if (rc.canBid((int) bid)) {
                 System.out.println("I will bid " + (int) bid);
                 rc.bid((int) bid);
@@ -127,7 +123,13 @@ public class EnlightenmentCenter extends Robot {
                 if (rc.canBuildRobot(rt, dir, influence)) {
                     rc.buildRobot(rt, dir, influence);
                     if (rt != RobotType.SLANDERER) {
-                        activebots.add(new FlagsObj(rc.senseRobotAtLocation(rc.getLocation().add(dir)), 0));
+                        if (activebots.size() > 100) {
+                            if (Math.random() > 0.5) {
+                                activebots.add(new FlagsObj(rc.senseRobotAtLocation(rc.getLocation().add(dir)), 0));
+                            }
+                        } else {
+                            activebots.add(new FlagsObj(rc.senseRobotAtLocation(rc.getLocation().add(dir)), 0));
+                        }
                     }
                     return true;
                 } else {
@@ -138,7 +140,13 @@ public class EnlightenmentCenter extends Robot {
                     if (rc.canBuildRobot(rt, d, influence)) {
                         rc.buildRobot(rt, d, influence);
                         if (rt != RobotType.SLANDERER) {
-                            activebots.add(new FlagsObj(rc.senseRobotAtLocation(rc.getLocation().add(d)), 0));
+                            if (activebots.size() > 100) {
+                                if (Math.random() > 0.5) {
+                                    activebots.add(new FlagsObj(rc.senseRobotAtLocation(rc.getLocation().add(d)), 0));
+                                }
+                            } else {
+                                activebots.add(new FlagsObj(rc.senseRobotAtLocation(rc.getLocation().add(d)), 0));
+                            }
                         }
                         return true;
                     }
@@ -156,7 +164,7 @@ public class EnlightenmentCenter extends Robot {
 
         // receive and process information
         // for (Iterator<RobotInfo> iter = activebots.iterator(); iter.hasNext();) {
-        for (Iterator<FlagsObj> iter = activebots.iterator(); iter.hasNext();) { // TODO: FlagsObj test
+        for (Iterator<FlagsObj> iter = activebots.iterator(); iter.hasNext(); ) { // TODO: FlagsObj test
             // RobotInfo b = iter.next();
             FlagsObj b = iter.next(); // TODO: FlagsObj test
             if (rc.canGetFlag(b.bot.ID)) {
@@ -170,27 +178,62 @@ public class EnlightenmentCenter extends Robot {
                             if (!enemyEClocs.contains(loc)) {
                                 enemyEClocs.add(loc);
                             }
+                            if (neutralEClocs.contains(loc)) {
+                                neutralEClocs.remove(loc);
+                            }
+                            if (teamEClocs.contains(loc)) {
+                                teamEClocs.remove(loc);
+                            }
+                            if (!enemyECqu.contains(loc)) {
+                                enemyECqu.add(loc);
+                            }
                         }
                         case (InfoCodes.TEAMEC): {
                             MapLocation loc = flags.getLocationFromFlag(flag);
                             if (enemyEClocs.contains(loc)) {
                                 enemyEClocs.remove(loc);
-                            } else if (neutralEClocs.contains(loc)) {
+                            }
+                            if (neutralEClocs.contains(loc)) {
                                 neutralEClocs.remove(loc);
                             }
                             if (!teamEClocs.contains(loc)) {
                                 teamEClocs.remove(loc);
+                            }
+                            if (!teamECqu.contains(loc)) {
+                                teamECqu.add(loc);
                             }
                         }
                         case (InfoCodes.NEUTRALEC): {
                             MapLocation loc = flags.getLocationFromFlag(flag);
                             if (!neutralEClocs.contains(loc)) {
                                 neutralEClocs.add(loc);
+                                if (!neutralECqu.contains(loc)) {
+                                    neutralECqu.add(loc);
+                                }
                             }
                         }
                     }
                 }
-            } else {iter.remove();}
+            } else {
+                iter.remove();
+            }
+        }
+        // --
+
+        // send locations
+        if (flagsQu.size() > 0) {
+            RobotInfo info = flagsQu.poll();
+            flags.sendLocationWithInfo(info.location, InfoCodes.convertToInfoCode(info.team, team));
+        } else if (neutralECqu.size() > 0) {
+            flags.sendLocationWithInfo(neutralECqu.poll(), InfoCodes.NEUTRALEC);
+        } else if (teamECqu.size() > 0) {
+            flags.sendLocationWithInfo(teamECqu.poll(), InfoCodes.TEAMEC);
+        } else if (enemyECqu.size() > 0) {
+            flags.sendLocationWithInfo(enemyECqu.poll(), InfoCodes.ENEMYEC);
+        } else {
+            if (rc.canSetFlag(0)) {
+                rc.setFlag(0);
+            }
         }
         // --
     }
@@ -213,7 +256,6 @@ public class EnlightenmentCenter extends Robot {
             currStep = i+1;
         }
         int BCcost = Clock.getBytecodeNum() - bc1;
-        System.out.println("\n BC cost of cBSI(): \n" + BCcost);
         if (initialInfl + nextStep <= capital && nextStep < currStep) {
             return initialInfl + nextStep;
         } else if (initialInfl - currStep >= 21 && nextStep > currStep){
