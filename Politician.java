@@ -14,25 +14,32 @@ public class Politician extends Unit {
     public void takeTurn() throws  GameActionException{
         super.takeTurn();
         RobotInfo[] nearbyEnemys = rc.senseNearbyRobots(type.sensorRadiusSquared,enemy);
-        if (nearbyEnemys.length > 0){
-            Arrays.sort(nearbyEnemys, Comparator.comparingInt(x -> myloc.distanceSquaredTo(x.location)));
-            RobotInfo bot = nearbyEnemys[0];
-            attack(bot.location, 2, false);
-        }
-        if (neutralEClocs.size() != 0){
-            attack(neutralEClocs.get(0), 1, true);
-        }
-        if (enemyEClocs.size() != 0) {
-            System.out.println("I am attacking a enemy EC");
-            attack(enemyEClocs.get(0), 1, true);
-        }
-        if (nearbyEnemys.length > 0) {
-            tryEmpower(actionRadius);
-        }
         if (!idleMovement()){
             tryEmpower(1);
         }
-        nav.scout();
+        if (superpol) {
+            if (neutralEClocs.size() != 0){
+                attack(neutralEClocs.get(0), 1, true);
+            }else if (enemyEClocs.size() != 0) {
+                System.out.println("I am attacking a enemy EC");
+                attack(enemyEClocs.get(0), 1, true);
+            } else {
+                nav.scout();
+            }
+        }else{
+            if (nearbyEnemys.length > 0){
+                Arrays.sort(nearbyEnemys, Comparator.comparingInt(x -> myloc.distanceSquaredTo(x.location)));
+                RobotInfo bot = nearbyEnemys[0];
+                attack(bot.location, 2, false);
+            }
+            if (neutralEClocs.size() != 0){
+                attack(neutralEClocs.get(0), 1, true);
+            }else if (enemyEClocs.size() != 0) {
+                System.out.println("I am attacking a enemy EC");
+                attack(enemyEClocs.get(0), 1, true);
+            }
+            nav.orbit(teamEClocs.get(0),100,3);
+        }
     }
 
 
