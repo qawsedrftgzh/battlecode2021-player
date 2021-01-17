@@ -2,6 +2,7 @@ package battlecode2021;
 import battlecode.common.*;
 
 public class Slanderer extends Unit {
+    int age = 0;
     MapLocation born = rc.getLocation();
     MapLocation muckloc = null;
     MapLocation neareneloc = null;
@@ -11,6 +12,8 @@ public class Slanderer extends Unit {
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
+        System.out.println(age);
+        age++;
         for (RobotInfo bot : rc.senseNearbyRobots()){
             if (bot.type == RobotType.ENLIGHTENMENT_CENTER){
                 if (bot.team == enemy){
@@ -32,6 +35,9 @@ public class Slanderer extends Unit {
             }
         }
         if (muckloc == null) {
+            if (neutralEClocs.size() > 0){
+                nav.orbit(neutralEClocs.get(0),20,1);
+            }
             if (teamEClocs.size() > 0) {
                 nav.orbit(teamEClocs.get(0), 200, 5);
             }
