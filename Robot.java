@@ -13,11 +13,11 @@ public class Robot {
     ArrayList<MapLocation> enemyEClocs = new ArrayList<>();
     ArrayList<MapLocation> neutralEClocs = new ArrayList<>();
     ArrayList<MapLocation> teamEClocs = new ArrayList<>();
-    Queue<MapLocation> neutralECqu = new LinkedList<>();
-    Queue<MapLocation> enemyECqu = new LinkedList<>();
-    Queue<MapLocation> teamECqu = new LinkedList<>();
-    Queue<RobotInfo> TPqu = new LinkedList<>(); // top priority Queue
-    Queue<RobotInfo> LPqu = new LinkedList<>(); // least priority Queue
+    Deque<MapLocation> neutralECqu = new LinkedList<>();
+    Deque<MapLocation> enemyECqu = new LinkedList<>();
+    Deque<MapLocation> teamECqu = new LinkedList<>();
+    Deque<RobotInfo> TPqu = new LinkedList<>(); // top priority Queue
+    Deque<RobotInfo> LPqu = new LinkedList<>(); // least priority Queue
     MapLocation bornhere;
     RobotInfo[]  nearbyRobots, attackable;
     int actionRadius, sensorRadius, detectionRadius;
