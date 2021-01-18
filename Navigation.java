@@ -5,7 +5,7 @@ import battlecode.common.*;
 public class Navigation {
     RobotController rc;
     Direction scoutDir;
-    double passabilityLimit = 0.2;
+    double passabilityLimit = 0.1;
     int failed = 0; // number of failed attempts to move exactly in given direction
 
     public Navigation(RobotController r) {
@@ -101,7 +101,7 @@ public class Navigation {
         return false;
     }
 
-    boolean runaway(MapLocation loc) throws GameActionException {
+    boolean runaway2(MapLocation loc) throws GameActionException {
         if (loc != null) {
             MapLocation myloc = rc.getLocation();
             if (myloc == loc) {
@@ -117,6 +117,24 @@ public class Navigation {
                     if(!tryMove(rotate(dir, 6))){
                     }}}}
                     scout();
+                    return false;
+                }
+            }
+        } else {
+            return false;
+        }
+    }
+
+    boolean runaway(MapLocation loc) throws GameActionException {
+        if (loc != null) {
+            MapLocation myloc = rc.getLocation();
+            if (myloc == loc) {
+                return true;
+            } else {
+                Direction dir = loc.directionTo(myloc);
+                if (navigate(myloc.add(dir), false)) {
+                    return true;
+                } else {
                     return false;
                 }
             }
