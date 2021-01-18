@@ -7,7 +7,7 @@ public class Muckraker extends Unit {
     boolean explorer = false;
     public Muckraker(RobotController r) {
         super(r);
-        if (r.getRoundNum() <=  20000){
+        if (r.getRoundNum() <=  150){
             explorer = true;
         }
     }
@@ -30,7 +30,7 @@ public class Muckraker extends Unit {
         if (disttoenhq >= 5) {
             if (teamEClocs.size() > 0 && myloc.distanceSquaredTo(teamEClocs.get(0)) <= 50) {
                 for (RobotInfo rbi : nearbyRobots) {
-                    if (rbi.location.distanceSquaredTo(teamEClocs.get(0)) < 100) {
+                    if (rbi.team == enemy && rbi.location.distanceSquaredTo(teamEClocs.get(0)) < 100 && rbi.location.distanceSquaredTo(teamEClocs.get(0)) > 5) {
                         nav.navigate(rbi.location.add(rbi.location.directionTo(teamEClocs.get(0))), false);
                     }
                 }
