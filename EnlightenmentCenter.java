@@ -76,7 +76,7 @@ public class EnlightenmentCenter extends Robot {
                 if (tryBuild(RobotType.POLITICIAN, null, 61)) {
                     neutralECqu.add(nextNeutralEC);
                 }
-            } else { neutralECqu.add(nextNeutralEC); }
+            } else { neutralECqu.addFirst(nextNeutralEC); }
             capital = 0;
         }
         if (actualround <=2 || (capital <50 && capital>=30 && rc.getRoundNum() % 5 == 0)){
