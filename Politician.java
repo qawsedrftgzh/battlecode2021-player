@@ -5,10 +5,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 public class Politician extends Unit {
-    boolean superpol = false; //if the plotician has more then 200 influence
     public Politician(RobotController r) {
         super(r);
-        if (rc.getInfluence()>=200) {superpol=true;}
 
     }
     public void takeTurn() throws  GameActionException{
@@ -17,30 +15,21 @@ public class Politician extends Unit {
         if (!idleMovement()){
             tryEmpower(1);
         }
-        if (superpol) {
-            if (neutralEClocs.size() != 0){
-                attack(neutralEClocs.get(0), 1, true);
-            }else if (enemyEClocs.size() != 0) {
-                System.out.println("I am attacking a enemy EC");
-                attack(enemyEClocs.get(0), 1, true);
-            } else {
-                nav.scout();
+        if (nearbyEnemys.length > 0){
+            Arrays.sort(nearbyEnemys, Comparator.comparingInt(x -> myloc.distanceSquaredTo(x.location)));
+            for (RobotInfo bot:nearbyEnemys) {
+                if (bot.type == RobotType.MUCKRAKER || (rc.getEmpowerFactor(team,1)>= 2 && bot.type == RobotType.POLITICIAN)) { //do not attack, slanderers, but create poliwaves
+                     attack(bot.location, 1, false);
+                }
             }
-        }else{
-            if (nearbyEnemys.length > 0){
-                Arrays.sort(nearbyEnemys, Comparator.comparingInt(x -> myloc.distanceSquaredTo(x.location)));
-                RobotInfo bot = nearbyEnemys[0];
-                attack(bot.location, 2, false);
-            }
-            if (neutralEClocs.size() != 0){
-                attack(neutralEClocs.get(0), 1, true);
-            }else if (enemyEClocs.size() != 0) {
-                System.out.println("I am attacking a enemy EC");
-                attack(enemyEClocs.get(0), 1, true);
-            }
-            else if (teamEClocs.size() != 0) {
-                nav.orbit(teamEClocs.get(0), 100, 3);
-            }
+        }
+        if (neutralEClocs.size() != 0){
+            attack(neutralEClocs.get(0), 1, true);
+        }else if (enemyEClocs.size() != 0) {
+            System.out.println("I am attacking a enemy EC");
+            attack(enemyEClocs.get(0), 1, true);
+        } else {
+            nav.orbit(teamEClocs.get(0),51,49);
         }
     }
 
