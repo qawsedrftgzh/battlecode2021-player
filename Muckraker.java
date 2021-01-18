@@ -7,7 +7,7 @@ public class Muckraker extends Unit {
     boolean explorer = false;
     public Muckraker(RobotController r) {
         super(r);
-        if (r.getRoundNum() <=  150){
+        if (r.getInfluence() == 1){
             explorer = true;
         }
     }
