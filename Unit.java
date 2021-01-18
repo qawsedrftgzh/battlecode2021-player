@@ -110,9 +110,9 @@ public class Unit extends Robot {
             if (neutralEClocs.size() > 0) {
                 for (Iterator<MapLocation> iter = neutralEClocs.iterator(); iter.hasNext(); ) {
                     MapLocation loc = iter.next();
-                    if (myloc.distanceSquaredTo(loc) <= type.sensorRadiusSquared && rc.canSenseLocation(loc)) {
+                    if (rc.canSenseLocation(loc)) {
                         RobotInfo botAtLocation = rc.senseRobotAtLocation(loc);
-                        if (botAtLocation != null && botAtLocation.type == RobotType.ENLIGHTENMENT_CENTER ) {
+                        if (botAtLocation.type == RobotType.ENLIGHTENMENT_CENTER) {
                             if (botAtLocation.team != Team.NEUTRAL) {
                                 iter.remove();
                                 neutralECqu.remove(loc);
