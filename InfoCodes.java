@@ -12,7 +12,7 @@ public class InfoCodes {
         if (team != null && myteam != null) {
             if (team==myteam) {
                 return InfoCodes.TEAMEC;
-            } else if (team.opponent() == myteam) {
+            } else if (myteam.opponent() == team) {
                 return InfoCodes.ENEMYEC;
             } else {
                 return InfoCodes.NEUTRALEC;
