@@ -57,6 +57,9 @@ public class Muckraker extends Unit {
             if (!explorer) {
                 int closest = Integer.MAX_VALUE;
                 RobotInfo closestbot = null;
+                if (round%5==0 && enemyEClocs.size() != 0) {
+                    nav.navigate(myloc.add(myloc.directionTo(enemyEClocs.get(0))), false);
+                }
                 for (RobotInfo bot : rc.senseNearbyRobots(25, team)) {
                     if (bot.type == RobotType.MUCKRAKER && bot.location.distanceSquaredTo(myloc) <= closest) {
                         closest = bot.location.distanceSquaredTo(myloc);
@@ -64,7 +67,9 @@ public class Muckraker extends Unit {
                     }
                 }
                 if (closestbot != null) {
-                    nav.runaway(closestbot.location);
+                    if (!nav.runaway(closestbot.location)) {
+
+                    }
                 }
                 for (Direction dir : Direction.allDirections()) {
                     if (!rc.onTheMap(myloc.add(dir).add(dir))) {
