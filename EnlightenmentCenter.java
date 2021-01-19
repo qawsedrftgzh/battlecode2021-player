@@ -1,11 +1,8 @@
 package battlecode2021;
 import battlecode.common.*;
-
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-
 
 public class EnlightenmentCenter extends Robot {
     double bid = 1;
@@ -16,6 +13,7 @@ public class EnlightenmentCenter extends Robot {
     int income; // income per round (capital-capital2)
     int actualround, polimount;
     int muckraker; // amount of muckraker spawned
+    boolean vote = true; // if EC should vote this round
     MapLocation myloc;
     ArrayList<FlagsObj> activebots = new ArrayList<>(); // TODO: FlagsObj test
     // ArrayList<RobotInfo> activebots = new ArrayList<>();
@@ -32,6 +30,8 @@ public class EnlightenmentCenter extends Robot {
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
+        updateFlag();
+        vote = true;
         capital = rc.getInfluence();
         income = capital - capital2;
         actualround = rc.getRoundNum();
@@ -39,7 +39,9 @@ public class EnlightenmentCenter extends Robot {
         if (polimount < 20){
             polimount = 20;
         }
-        updateFlag();
+
+
+        // building
         if (rc.getEmpowerFactor(team,1) >= 10 && capital < 70000000){
             tryBuild(RobotType.POLITICIAN,null,capital/2);
         }
@@ -64,33 +66,44 @@ public class EnlightenmentCenter extends Robot {
                 } else if (actualround % 3 == 1) {
                     tryBuild(RobotType.POLITICIAN, null, polimount);
                 } else {
-                    tryBuild(RobotType.MUCKRAKER, null, (int) (capital * 0.05));
+                    if (muckraker < 21) {
+                        tryBuild(RobotType.MUCKRAKER, null, 1);
+                        muckraker++;
+                    } else {
+                        tryBuild(RobotType.MUCKRAKER, null, 2);
+                        muckraker++;
+                    }
                 }
             }else if (arghmuck != null){
                 tryBuild(RobotType.POLITICIAN,null,polimount);
             }
-        } if (neutralEClocs.size() > 0) {
+        } if (neutralEClocs.size() > 0 && capital + income * 10 == 501) {
             System.out.println(neutralEClocs); // TODO: remove
             MapLocation nextNeutralEC = neutralEClocs.get(0);
-            if(!tryBuild(RobotType.POLITICIAN, myloc.directionTo(nextNeutralEC), 61)) {
-                if (tryBuild(RobotType.POLITICIAN, null, 61)) {
+            if(!tryBuild(RobotType.POLITICIAN, myloc.directionTo(nextNeutralEC), 501)) {
+                if (tryBuild(RobotType.POLITICIAN, null, 501)) {
                     neutralECqu.add(nextNeutralEC);
                 }
             } else { neutralECqu.addFirst(nextNeutralEC); }
-            capital = 0;
         }
-        if (actualround <=2 || (capital <50 && capital>=30 && rc.getRoundNum() % 5 == 0)){
+        if (actualround <=2 || (capital < 100 && capital>=30 && round % 5 == 0) || (capital > 100 && round % 5 == 0)){
             System.out.println("the first few rounds");
             tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital));
-        }else if (actualround % 3 == 0 && capital >= 200) {
-            tryBuild(RobotType.SLANDERER, null, 200);
+        }else if (actualround % 3 == 0 && capital >= 1000) {
+            tryBuild(RobotType.SLANDERER, null, capital/5);
         }else if (actualround % 3 == 1 && capital >= 50){
             tryBuild(RobotType.POLITICIAN,null, 30);
-        }else if (capital > 0){
-            tryBuild(RobotType.MUCKRAKER,null,1);
+        }else {
+            if (muckraker < 21) {
+                tryBuild(RobotType.MUCKRAKER, null, 1);
+                muckraker++;
+            } else {
+                tryBuild(RobotType.MUCKRAKER, null, 2);
+                muckraker++;
+            }
         }
         //bidding
-        if (rc.getTeamVotes() <= 750 && capital > 30) {
+        if (rc.getTeamVotes() <= 750) {
             votesthisround = rc.getTeamVotes();
             if (votesthisround == voteslastround) {
                 if (rc.canBid((int) bid * 2)) {
@@ -114,6 +127,7 @@ public class EnlightenmentCenter extends Robot {
             } else {
                 bid = (int) (bid * 0.95);
             }
+            if (capital < 150) { bid = 2; }
             if (rc.canBid((int) bid)) {
                 System.out.println("I will bid " + (int) bid);
                 rc.bid((int) bid);
@@ -131,7 +145,7 @@ public class EnlightenmentCenter extends Robot {
                     rc.buildRobot(rt, dir, influence);
                     if (rt != RobotType.SLANDERER) {
                         if (activebots.size() > 100) {
-                            if (Math.random() > 0.5 || influence ==2 && rt == RobotType.MUCKRAKER) {
+                            if (Math.random() > 0.75 || (influence ==2 && rt == RobotType.MUCKRAKER)) {
                                 activebots.add(new FlagsObj(rc.senseRobotAtLocation(rc.getLocation().add(dir)), 0));
                             }
                         } else {
@@ -148,7 +162,7 @@ public class EnlightenmentCenter extends Robot {
                         rc.buildRobot(rt, d, influence);
                         if (rt != RobotType.SLANDERER) {
                             if (activebots.size() > 100) {
-                                if (Math.random() > 0.5 || influence ==2 && rt == RobotType.MUCKRAKER) {
+                                if (Math.random() > 0.75 || (influence ==2 && rt == RobotType.MUCKRAKER)) {
                                     activebots.add(new FlagsObj(rc.senseRobotAtLocation(rc.getLocation().add(d)), 0));
                                 }
                             } else {
@@ -177,56 +191,44 @@ public class EnlightenmentCenter extends Robot {
                 if (flag != 0 && flag != b.lastflag) {
                     b.lastflag = flag;
                     int info = flags.getInfoFromFlag(flag);
-                    System.out.println("received flag from " + b.bot.ID + " : \n" + flag + "\nwith info :\n" + info); // TODO: remove
+                    MapLocation loc = flags.getLocationFromFlag(flag);
                     switch (info) {
-                        case (InfoCodes.ENEMYEC): {
-                            MapLocation loc = flags.getLocationFromFlag(flag);
+                        case (InfoCodes.ENEMYEC):
                             if (!enemyEClocs.contains(loc)) {
                                 enemyEClocs.add(loc);
-                            }
-                            if (neutralEClocs.contains(loc)) {
-                                neutralEClocs.remove(loc);
-                            }
-                            if (neutralECqu.contains(loc)) {
-                                neutralECqu.remove(loc);
-                            }
-                            if (teamEClocs.contains(loc)) {
-                                teamEClocs.remove(loc);
                             }
                             if (!enemyECqu.contains(loc)) {
                                 enemyECqu.add(loc);
                             }
-                        }
-                        case (InfoCodes.TEAMEC): {
-                            MapLocation loc = flags.getLocationFromFlag(flag);
-                            if (enemyEClocs.contains(loc)) {
-                                enemyEClocs.remove(loc);
-                            }
-                            if (neutralEClocs.contains(loc)) {
-                                neutralEClocs.remove(loc);
-                            }
-                            if (neutralECqu.contains(loc)) {
-                                neutralECqu.removeAll(Collections.singleton(loc));
-                            }
-                            /**if (LPqu.contains(loc)) {
-                                LPqu.removeAll(Collections.singleton(loc));
-                            }**/
+                            neutralECqu.removeIf(x -> x == loc);
+                            neutralEClocs.removeIf(x -> x == loc);
+                            teamEClocs.removeIf(x -> x == loc);
+                            teamECqu.removeIf(x -> x == loc);
+                            LPqu.removeIf(x -> x.location == loc && (x.team == Team.NEUTRAL || x.team == team));
+                            break;
+
+                        case (InfoCodes.TEAMEC):
                             if (!teamEClocs.contains(loc)) {
-                                teamEClocs.remove(loc);
+                                teamEClocs.add(loc);
                             }
                             if (!teamECqu.contains(loc)) {
                                 teamECqu.add(loc);
                             }
-                        }
-                        case (InfoCodes.NEUTRALEC): {
-                            MapLocation loc = flags.getLocationFromFlag(flag);
-                            if (!neutralEClocs.contains(loc) && !teamEClocs.contains(loc) && !enemyEClocs.contains(loc)) {
+                            enemyEClocs.removeIf(x -> x == loc);
+                            enemyECqu.removeIf(x -> x == loc);
+                            neutralEClocs.removeIf(x -> x == loc);
+                            neutralECqu.removeIf(x -> x == loc);
+                            LPqu.removeIf(x -> x.location == loc && (x.team == enemy || x.team == Team.NEUTRAL));
+                            break;
+
+                        case (InfoCodes.NEUTRALEC):
+                            if (!neutralEClocs.contains(loc)) {
                                 neutralEClocs.add(loc);
-                                if (!neutralECqu.contains(loc)) {
-                                    neutralECqu.add(loc);
-                                }
                             }
-                        }
+                            if (!neutralECqu.contains(loc)) {
+                                neutralECqu.add(loc);
+                            }
+                            break;
                     }
                 }
             } else {
@@ -234,16 +236,21 @@ public class EnlightenmentCenter extends Robot {
             }
         }
         // --
-
+        System.out.println("\nneutralECqu: " + neutralECqu.size() + "\nteamECqu: " + teamECqu.size() + "\nenemyECqu: " + enemyECqu.size());
         // send locations
-        if (neutralECqu.size() > 0) {
-            flags.sendLocationWithInfo(neutralECqu.poll(), InfoCodes.NEUTRALEC);
+        if (enemyECqu.size() > 0 && muckraker < 30) {
+            MapLocation head = enemyECqu.poll();
+            flags.sendLocationWithInfo(head, InfoCodes.ENEMYEC);
+            LPqu.add(new RobotInfo(0, enemy, null, 0, 0, head));
+        } else if (neutralECqu.size() > 0) {
+            MapLocation head = neutralECqu.poll();
+            flags.sendLocationWithInfo(head, InfoCodes.NEUTRALEC);
+            LPqu.add(new RobotInfo(0,Team.NEUTRAL, null, 0, 0, head));
         } else if (teamECqu.size() > 0) {
-            flags.sendLocationWithInfo(teamECqu.poll(), InfoCodes.TEAMEC);
-        } else if (enemyECqu.size() > 0 && muckraker > 100) {
-            flags.sendLocationWithInfo(enemyECqu.poll(), InfoCodes.ENEMYEC);
-            muckraker /= 2;
-        } else if (LPqu.size() > 0) {
+            MapLocation head = teamECqu.poll();
+            flags.sendLocationWithInfo(head, InfoCodes.TEAMEC);
+            LPqu.add(new RobotInfo(0, team, null, 0, 0, head));
+        }  else if (LPqu.size() > 0) {
             flags.sendLocationWithInfo(LPqu.peek().location, InfoCodes.convertToInfoCode(LPqu.peek().team, team));
             LPqu.add(LPqu.poll());
         } else {
