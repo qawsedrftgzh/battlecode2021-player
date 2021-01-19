@@ -1,6 +1,5 @@
 package battlecode2021;
 import battlecode.common.*;
-
 import java.util.*;
 
 public class Unit extends Robot {
@@ -64,9 +63,9 @@ public class Unit extends Robot {
                 if (flag != 0 && flag != nextECID.lastflag) {
                     nextECID.lastflag = flag;
                     int info = flags.getInfoFromFlag(flag);
+                    MapLocation loc = flags.getLocationFromFlag(flag);
                     switch (info) {
-                        case (InfoCodes.ENEMYEC): {
-                            MapLocation loc = flags.getLocationFromFlag(flag);
+                        case (InfoCodes.ENEMYEC):
                             if (!enemyEClocs.contains(loc)) {
                                 enemyEClocs.add(loc);
                             }
@@ -76,9 +75,9 @@ public class Unit extends Robot {
                             if (teamEClocs.contains(loc)) {
                                 teamEClocs.remove(loc);
                             }
-                        }
-                        case (InfoCodes.TEAMEC): {
-                            MapLocation loc = flags.getLocationFromFlag(flag);
+                            break;
+
+                        case (InfoCodes.TEAMEC):
                             if (enemyEClocs.contains(loc)) {
                                 enemyEClocs.remove(loc);
                             }
@@ -88,13 +87,14 @@ public class Unit extends Robot {
                             if (!teamEClocs.contains(loc)) {
                                 teamEClocs.remove(loc);
                             }
-                        }
-                        case (InfoCodes.NEUTRALEC): {
-                            MapLocation loc = flags.getLocationFromFlag(flag);
+                            break;
+
+                        case (InfoCodes.NEUTRALEC):
                             if (!neutralEClocs.contains(loc)) {
                                 neutralEClocs.add(loc);
                             }
-                        }
+                            break;
+
                     }
                 }
             } else {
