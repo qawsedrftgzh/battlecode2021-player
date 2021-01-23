@@ -32,6 +32,7 @@ public class EnlightenmentCenter extends Robot {
         super.takeTurn();
         updateFlag();
         vote = true;
+        boolean buildsland = true;
         capital = rc.getInfluence();
         income = capital - capital2;
         actualround = rc.getRoundNum();
@@ -39,17 +40,14 @@ public class EnlightenmentCenter extends Robot {
         if (polimount < 20){
             polimount = 20;
         }
-
+        int enemylength = rc.senseNearbyRobots(type.sensorRadiusSquared,enemy).length;
 
         // building
-        if (rc.getEmpowerFactor(team,1) >= 10 && capital < 70000000){
-            tryBuild(RobotType.POLITICIAN,null,capital/2);
-        }
-        if (rc.senseNearbyRobots(type.sensorRadiusSquared,enemy).length > nearbyRobots.length/2){
+        if (enemylength > nearbyRobots.length/2){
             tryBuild(RobotType.POLITICIAN,null, 20);
         }
         if (neareneEC != null){
-            boolean buildsland = true;
+            buildsland = false;
             RobotInfo arghmuck = null;
             for (RobotInfo bot:rc.senseNearbyRobots(12,enemy)){
                 if (bot.type == RobotType.MUCKRAKER){
@@ -58,24 +56,10 @@ public class EnlightenmentCenter extends Robot {
                     break;
                 }
             }
-            if (enemyEClocs.size() == 0 && neutralEClocs.size() == 0) {
-                if (buildsland && (int) (capital * 0.5) >= 30) {
-                    tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence((int) (capital * 0.5)));
-                } else if (actualround % 3 == 0 && buildsland) {
-                    tryBuild(RobotType.SLANDERER, null, 200);
-                } else if (actualround % 3 == 1) {
-                    tryBuild(RobotType.POLITICIAN, null, polimount);
-                } else {
-                    if (muckraker < 21) {
-                        tryBuild(RobotType.MUCKRAKER, null, 1);
-                        muckraker++;
-                    } else {
-                        tryBuild(RobotType.MUCKRAKER, null, 2);
-                        muckraker++;
-                    }
-                }
-            }else if (arghmuck != null){
+            if (arghmuck != null){
                 tryBuild(RobotType.POLITICIAN,null,polimount);
+            } else {
+                tryBuild(RobotType.MUCKRAKER,null,2);
             }
         } if (neutralEClocs.size() > 0 && capital + income * 10 == 501) {
             System.out.println(neutralEClocs); // TODO: remove
@@ -85,34 +69,46 @@ public class EnlightenmentCenter extends Robot {
                     neutralECqu.add(nextNeutralEC);
                 }
             } else { neutralECqu.addFirst(nextNeutralEC); }
-        }
-        if (actualround <=2 || (capital < 100 && capital>=30 && round % 5 == 0) || (capital > 100 && round % 5 == 0)){
-            System.out.println("the first few rounds");
-            tryBuild(RobotType.SLANDERER, null, calculateBestSlandererInfluence(capital));
-        }else if (actualround % 3 == 0 && capital >= 1000) {
-            tryBuild(RobotType.SLANDERER, null, capital/5);
-        }else if (actualround % 3 == 1 && capital >= 50){
-            tryBuild(RobotType.POLITICIAN,null, 30);
-        }else {
-            if (muckraker < 21) {
-                tryBuild(RobotType.MUCKRAKER, null, 1);
-                muckraker++;
+        } if (enemyEClocs.size() == 0 && neutralEClocs.size() == 0) {
+            if ((actualround % 3 == 0 || income < 10) && capital >= 41 && enemylength == 0) {
+                tryBuild(RobotType.SLANDERER, null, 41);
+            } else if (actualround % 3 == 1) {
+                tryBuild(RobotType.POLITICIAN, null, polimount);
             } else {
-                tryBuild(RobotType.MUCKRAKER, null, 2);
-                muckraker++;
+                if (muckraker < 21) {
+                    tryBuild(RobotType.MUCKRAKER, null, 1);
+                    muckraker++;
+                } else {
+                    tryBuild(RobotType.MUCKRAKER, null, 2);
+                    muckraker++;
+                }
+            }
+        }else {
+             if ((actualround % 3 == 0 || income < 10) && capital >= 41 && enemylength == 0) {
+                tryBuild(RobotType.SLANDERER, null, 41);
+            } else if (actualround % 3 == 1 && capital >= 50) {
+                tryBuild(RobotType.POLITICIAN, null, 30);
+            } else {
+                if (muckraker < 21) {
+                    tryBuild(RobotType.MUCKRAKER, null, 1);
+                    muckraker++;
+                } else {
+                    tryBuild(RobotType.MUCKRAKER, null, 2);
+                    muckraker++;
+                }
             }
         }
         //bidding
         if (rc.getTeamVotes() <= 750) {
             votesthisround = rc.getTeamVotes();
             if (votesthisround == voteslastround) {
-                if (rc.canBid((int) bid * 2)) {
-                    bid = bid * 2;
-                } else if (rc.canBid((int) (rc.getInfluence() * 1.1))) {
-                    bid = (int) (rc.getInfluence() * 1.1);
+                if (rc.canBid((int) bid * 2+1)) {
+                    bid = bid * 2 + 1;
+                } else if (rc.canBid((int) (rc.getInfluence() * 1.1+1))) {
+                    bid = (int) (rc.getInfluence() * 1.1 +1);
 
-                } else if (rc.canBid(rc.getInfluence() / 4)) {
-                    bid = rc.getInfluence() * 0.25;
+                } else if (rc.canBid(rc.getInfluence() / 4+1)) {
+                    bid = rc.getInfluence() * 0.25 +1;
 
                 } else if (rc.canBid(1)) {
                     bid = 1;
@@ -137,12 +133,12 @@ public class EnlightenmentCenter extends Robot {
 
         capital2 = capital;
     }
-
     boolean tryBuild(RobotType rt, Direction dir, int influence) throws GameActionException {
         if (rc.isReady()) {
             if (dir != null) {
                 if (rc.canBuildRobot(rt, dir, influence)) {
                     rc.buildRobot(rt, dir, influence);
+                    System.out.println("i builded"+rt+dir+influence);
                     if (rt != RobotType.SLANDERER) {
                         if (activebots.size() > 100) {
                             if (Math.random() > 0.75 || (influence ==2 && rt == RobotType.MUCKRAKER)) {
@@ -160,6 +156,7 @@ public class EnlightenmentCenter extends Robot {
                 for (Direction d : Util.directions) {
                     if (rc.canBuildRobot(rt, d, influence)) {
                         rc.buildRobot(rt, d, influence);
+                        System.out.println("i builded"+rt+dir+influence);
                         if (rt != RobotType.SLANDERER) {
                             if (activebots.size() > 100) {
                                 if (Math.random() > 0.75 || (influence ==2 && rt == RobotType.MUCKRAKER)) {
