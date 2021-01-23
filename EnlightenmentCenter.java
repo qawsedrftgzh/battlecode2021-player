@@ -1,4 +1,4 @@
-package battlecode2021;
+package theoldbot;
 import battlecode.common.*;
 import java.util.ArrayList;
 import java.util.Collections;
