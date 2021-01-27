@@ -50,5 +50,17 @@ public class Slanderer extends Unit {
                 nav.runaway(muckloc);
             }
         }
+        int nearest = Integer.MAX_VALUE;
+        RobotInfo nearestbot = null;
+        for (RobotInfo bot : rc.senseNearbyRobots(25, team)) {
+            if (bot.type == RobotType.SLANDERER && bot.location.distanceSquaredTo(myloc) <= nearest) {
+                nearest = bot.location.distanceSquaredTo(myloc);
+                nearestbot = bot;
+            }
+        }if (nearestbot != null) {
+            if (!nav.runaway(nearestbot.location)) {
+
+            }
+        }
     }
 }

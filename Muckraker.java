@@ -57,7 +57,7 @@ public class Muckraker extends Unit {
             if (!explorer) {
                 int closest = Integer.MAX_VALUE;
                 RobotInfo closestbot = null;
-                if (round%5==0 && enemyEClocs.size() != 0) {
+                if (enemyEClocs.size() != 0 && (round % 5 == 0 || round % 67 <= 50)) {
                     nav.navigate(myloc.add(myloc.directionTo(enemyEClocs.get(0))), false);
                 }
                 for (RobotInfo bot : rc.senseNearbyRobots(25, team)) {

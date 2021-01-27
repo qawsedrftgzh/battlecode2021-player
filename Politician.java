@@ -12,10 +12,10 @@ public class Politician extends Unit {
     public void takeTurn() throws  GameActionException{
         super.takeTurn();
         RobotInfo[] nearbyEnemys = rc.senseNearbyRobots(type.sensorRadiusSquared,enemy);
-        if (!idleMovement()){
-            tryEmpower(1);
+        if (rc.getEmpowerFactor(team,0)>=2){
+            tryEmpower(type.actionRadiusSquared);
         }
-        if (nearbyEnemys.length > 0){
+        if (nearbyEnemys.length > 0 && rc.getInfluence() < 100){
             Arrays.sort(nearbyEnemys, Comparator.comparingInt(x -> myloc.distanceSquaredTo(x.location)));
             for (RobotInfo bot:nearbyEnemys) {
                 if (bot.type == RobotType.MUCKRAKER || (rc.getEmpowerFactor(team,1)>= 2 && bot.type == RobotType.POLITICIAN)) { //do not attack, slanderers, but create poliwaves
