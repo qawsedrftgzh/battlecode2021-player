@@ -66,8 +66,15 @@ public class Politician extends Unit {
     void attack(MapLocation target, int maxDistanceSquared, boolean limitPassability) throws GameActionException {
         if (target != null) {
             int distanceToTarget = rc.getLocation().distanceSquaredTo(target);
+            int robotsaurnd = rc.detectNearbyRobots(1).length;
             if (distanceToTarget <= maxDistanceSquared) {
+                if (maxDistanceSquared != 1) {
                     tryEmpower(distanceToTarget);
+                } else if (robotsaurnd == 1 || robotsaurnd == 4){ //be effective or be in a crowd
+                    tryEmpower(distanceToTarget);
+                } else {
+                    nav.orbit(target,2,1);
+                }
             } else {
                 nav.navigate(target, limitPassability);
             }

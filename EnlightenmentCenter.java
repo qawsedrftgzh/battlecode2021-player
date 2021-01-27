@@ -111,7 +111,7 @@ public class EnlightenmentCenter extends Robot {
                     bid = rc.getInfluence() * 0.25 +1;
 
                 } else if (rc.canBid(1)) {
-                    bid = 1;
+                    bid = 3; //evrybody thinks that everybody will bid 1 so evrybody will 2 and we will bid 3, lol
                 }
                 if (actualround <= 250 && bid > capital * 0.25) {
                     bid = capital * 0.25;
