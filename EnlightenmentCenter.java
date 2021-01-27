@@ -85,7 +85,11 @@ public class EnlightenmentCenter extends Robot {
             }
         }else {
              if ((actualround % 3 == 0 || income < 10) && capital >= 41 && enemylength == 0) {
-                tryBuild(RobotType.SLANDERER, null, 41);
+                 int tobuild = 41;
+                 if (capital > 82) {
+                     tobuild = (int) (capital * 0.5);
+                 }
+                tryBuild(RobotType.SLANDERER, null, tobuild);
             } else if (actualround % 3 == 1 && capital >= 50) {
                 tryBuild(RobotType.POLITICIAN, null, 30);
             } else {

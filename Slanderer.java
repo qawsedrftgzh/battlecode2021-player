@@ -38,7 +38,9 @@ public class Slanderer extends Unit {
             if (neutralEClocs.size() > 0){
                 nav.orbit(neutralEClocs.get(0),20,1);
             }
-            if (teamEClocs.size() > 0) {
+            if (enemyEClocs.size() > 0) {
+                nav.runaway(enemyEClocs.get(0));
+            }if (teamEClocs.size() > 0) {
                 nav.orbit(teamEClocs.get(0), 200, 5);
             }
         }

@@ -12,7 +12,7 @@ public class Politician extends Unit {
     public void takeTurn() throws  GameActionException{
         super.takeTurn();
         RobotInfo[] nearbyEnemys = rc.senseNearbyRobots(type.sensorRadiusSquared,enemy);
-        if (rc.getEmpowerFactor(team,0)>=2){
+        if (rc.getEmpowerFactor(team,0)>=5){
             tryEmpower(type.actionRadiusSquared);
         }
         if (nearbyEnemys.length > 0 && rc.getInfluence() < 100){
